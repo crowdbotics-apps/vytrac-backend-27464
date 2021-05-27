@@ -7,6 +7,7 @@ from calendars.models import Date
 
 
 class Notifications(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
     title = models.CharField(max_length=30, null=True, blank=True)
     is_seen = models.BooleanField(default=False)
     description = models.TextField(max_length=999, blank=True, null=True)

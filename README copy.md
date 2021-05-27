@@ -11,6 +11,42 @@ This is a repository for a web application developed with Django, built with [Cr
 5. Toast Notification
 6. Inline content editor in homepage
 
+# endpoints
+
+The end points that are not documeted in swagger.
+
+- /notifcations/
+  - **onmessage**
+    {
+    "message": [
+    {
+    "id": 1,
+    "title": "ddd",
+    "is_seen": false,
+    "description": "changeddd",
+    "deadline": null,
+    "importance": "",
+    "target_users": [],
+    "target_groups": ['providers',]
+    },
+    {
+    "id": 2,
+    "title": "ddd",
+    "is_seen": false,
+    "description": "x",
+    "deadline": null,
+    "importance": "",
+    "target_users": [],
+    "target_groups": ['providers',]
+    }
+    ]
+    }
+  - **send**
+    {id:1, is_seen:true}
+- /timesheets/
+  return excele sheet logic like for statstics and such
+  - **GET** headers={}
+
 # Development
 
 Following are instructions on setting up your development environment.

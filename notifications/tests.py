@@ -5,9 +5,9 @@ import datetime
 from calendars.models import Date, DateType
 from django.contrib.auth.models import Permission
 from rest_framework import status
-from rest_framework.test import APIClient,
+from rest_framework.test import APIClient
 from django.urls import include, path, reverse
-from rest_framework.test import APITestCase,
+from rest_framework.test import APITestCase
 from users.models import User
 
 from rest_framework.test import APIRequestFactory
@@ -18,6 +18,13 @@ perm_tuple = [(x.id, x.name)
 
 login_data = {'username': 'newusername',
               'password': 'password'}
+
+from django.test import TestCase
+from channels.testing import HttpCommunicator
+from notifications.consumers import WSConsumer
+
+
+
 
 
 class NotifcationsTests(APITestCase):

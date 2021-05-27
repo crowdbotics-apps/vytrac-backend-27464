@@ -7,12 +7,12 @@ from .models import Notifications
 from . import serializers
 
 
-def return_notifcations(user):
-    # TODO
-    notifcations1 = Notifications.objects.filter(target_users__in=user)
-    notifcations2 = Notifications.objects.filter(target_groups__in=user.groups)
-    notifcations = notifcations1+notifcations2
-    return notifcations
+def return_notifcations(Notifications,user):
+    notes1 = Notifications.objects.filter(target_groups__in=user.groups.all())
+    notes2 = Notifications.objects.filter(target_users__in=[user])
+    if (user.is_staff or user.is_superuser):
+        return Notifications.objects.all()
+    return list(notes1)+list(notes2)
 
 
 class WSConsumer(WebsocketConsumer):
@@ -22,6 +22,8 @@ class WSConsumer(WebsocketConsumer):
     #     self.accept()
 
     def connect(self):
+        user = self.scope["user"]
+
         # TODO A3
         #notifcations =  Notifications.objects.filter(target_users__contains=self.scope['user'])
         # notifcations.filter(target_groups__contains=self.scope['user'].groups)
@@ -29,16 +31,17 @@ class WSConsumer(WebsocketConsumer):
         # 1. notifcation/?importance=high,meduim
         # 2. notifcation/?title=appointment,interveiw
         #
+
         self.accept()
         serializer = serializers.ItemsSer(
-            Notifications.objects.all(), many=True)
+            return_notifcations(Notifications,user) , many=True)
         x = json.dumps({'message': serializer.data})
         self.send(x)
 
         @receiver(signals.post_save, sender=Notifications)
         def __init__(instance, sender, signal, *args, **kwargs):
             serializer = serializers.ItemsSer(
-                sender.objects.all(), many=True)
+                return_notifcations(sender,user), many=True)
             x = json.dumps({'message': serializer.data})
             self.send(x)
 
