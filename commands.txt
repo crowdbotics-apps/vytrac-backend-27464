@@ -1,0 +1,8 @@
+python3.9 -m venv env
+source env/bin/activate
+./manage.py runserver
+pip install -r requirements.txt
+pipenv lock --pre --clear
+## you may need psycopg2==2.8.6
+#later commands
+heroku config:set DISABLE_COLLECTSTATIC=1
