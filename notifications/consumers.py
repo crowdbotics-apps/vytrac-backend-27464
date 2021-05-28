@@ -5,23 +5,65 @@ from django.dispatch import receiver
 from django.db.models import signals
 from .models import Notifications
 from . import serializers
-
+from django.db.models import Q
 
 def return_notifcations(Notifications,user):
-    notes1 = Notifications.objects.filter(target_groups__in=user.groups.all())
-    notes2 = Notifications.objects.filter(target_users__in=[user])
+    notifications =  Notifications.objects.filter(target_users__in=[user.id])
     if (user.is_staff or user.is_superuser):
-        return Notifications.objects.all()
-    return list(notes1)+list(notes2)
+        notifications =  Notifications.objects.all()
+    return notifications
 
 
-class WSConsumer(WebsocketConsumer):
+class Alerts(WebsocketConsumer):
     # def websocket_connect(self):
     #     # self.user = self.scope["user"]
     #     # user = self.scope["user"]
     #     self.accept()
 
+    def disconnect(self, close_code):
+        # async_to_sync(self.channel_layer.group_discard)(
+        #     self.room_group_name,
+        #     self.channel_name
+        # )
+        print('disconnect======================')
+        print(close_code)
+        print(self)
+        print('======================')
+        
+
+    def receive(self, text_data):
+        user = self.scope["user"]
+        data = json.loads(text_data)
+        print('receive======================')
+        errors = []
+        notifcation = return_notifcations(Notifications,user).filter(id=data['id'])
+
+        if('is_seen' not in data):
+            errors.append({'field name error': 'One of field names is not recognized.'})
+
+        if (not notifcation.exists()):
+            errors.append({'permission error': 'You are not permisted to update this alert.'})
+        try:
+            if (notifcation.filter(is_seen=True).exists() and data['is_seen'].title()=='True'):
+                errors.append({'value error': 'value already seted to true'})
+        except:
+            pass
+
+        if(len(errors)>=0):
+            message = json.dumps({'error': errors})
+            self.send(message)
+
+        if(len(errors)==0):
+            notifcation.update(is_seen=True)
+            serializer = serializers.ItemsSer(
+            return_notifcations(Notifications,user) , many=True)
+            x = json.dumps({'message': serializer.data})
+            self.send(x)
+
     def connect(self):
+        print('connect======================')
+        print(self)
+        print('======================')
         user = self.scope["user"]
 
         # TODO A3

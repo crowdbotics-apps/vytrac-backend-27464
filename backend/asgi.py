@@ -23,7 +23,7 @@ def get_user(querys):
     token_data = UntypedToken(token)
     user_id = token_data["user_id"]
     try:
-        return User.objects.get(id=1)
+        return User.objects.get(id=user_id)
     except User.DoesNotExist:
         return AnonymousUser()
 

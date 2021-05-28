@@ -8,13 +8,18 @@
 </head>
 <body>
       <h1>yeeee</h1>
+      <button id='botton'>socket.send</button>
       <script>
-
-            // const mywebosket = new WebSocket('ws://localhost:8000/test/')
-            const mywebosket = new WebSocket('ws://localhost:8000/test/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjo3NjY4OTczMjU1LCJqdGkiOiI3NDA0ZmNkY2JhN2Y0ODIzYTFmOTIxYTJmNzMyYTkzMyIsInVzZXJfaWQiOjJ9.N0Z_zi-p5VNLGifSwE_hV8_ypTlX7c0h4StQHKQmUTc')
-            // mywebosket.onmessage = function(e){
-            //       console.log(e)
-            // }
+            token ='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjo3NjY5NjA1NTI5LCJqdGkiOiI0ZTM4ZmViZGU0NjM0NjE1YWE3NDYwN2NiOWViODNlNCIsInVzZXJfaWQiOjJ9.JOL1qeHZlkwX8vIyNGX9t61js0By9std_uDQD7ITlJw'
+            const mywebosket = new WebSocket(`ws://localhost:8000/alerts/?token=${token}`)
+            mywebosket.onmessage = function(e){
+                  console.log(e)
+            }
+            document.querySelector('#botton').addEventListener("click", function(){
+                  mywebosket.send('{"id":"2","xxx":"true"}')
+                  // mywebosket.send("Hello server!");
+                  console.log('sned message')
+            })
       </script>
 </body>
 </html>

@@ -21,13 +21,25 @@ login_data = {'username': 'newusername',
 
 from django.test import TestCase
 from channels.testing import HttpCommunicator
-from notifications.consumers import WSConsumer
+from notifications.consumers import Alerts
+
+
+class MyTests(TestCase):
+    client = APIClient()
+    lg_res = client.post('/users/login/', login_data, format='json')
+    token = lg_res.data["access"]
+    async def test_my_consumer(self):
+        pass
+        communicator = HttpCommunicator(Alerts, "GET", f"/alerts/?token={self.token}/")
+        #TODO response = await communicator.get_response()
+        # response["headers"]
+        # self.assertEqual(response["body"], b"test response")
+        # self.assertEqual(response["status"], 200)
 
 
 
 
-
-class NotifcationsTests(APITestCase):
+class AlertsTests(APITestCase):
 
     def test_dates_notifcations(self):
         my_format = '%Y-%m-%dT%H:%M:%S.%fZ'
