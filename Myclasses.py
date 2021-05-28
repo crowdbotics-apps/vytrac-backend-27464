@@ -1,26 +1,23 @@
-from django.core.exceptions import EmptyResultSet
+
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import generics, mixins, permissions
+from rest_framework import generics, mixins
 from rest_framework.response import Response
 from MyFunctions import permision_chack
-from django.shortcuts import render
 from rest_framework import status
-from django.db.models import Q
+from django.db.models import Q, expressions
 from users.models import User
 
 from rest_framework import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import generics, mixins, permissions
+from rest_framework import generics, mixins
 from rest_framework.response import Response
-from django.shortcuts import render
 from rest_framework import status
 from django.db.models import Q
 from users.models import User
 from drf_queryfields import QueryFieldsMixin
-
 
 def convert_to_list(django_boject):
     flat_object = django_boject.values_list('codename', flat=True)
@@ -28,62 +25,60 @@ def convert_to_list(django_boject):
 
 
 class DynamicSerializer(QueryFieldsMixin, serializers.ModelSerializer):
-    # def create(self, validated_data, **kwargs):
-    # user = self.context['request'].user
-    # modelname = self.Meta.model.__name__.lower()
-    # permission = permision_chack('add', modelname, user)
-    # if (not permission['is_premited']):
-    #     raise serializers.ValidationError(
-    #         {'permission error': permission['message']})
-    # print('======================')
-    # print(validated_data)
-    # print('======================')
-    # return validated_data
-
     def __init__(self, * args, **kwargs):
-
         modelname = self.Meta.model.__name__.lower()
-        is_GET = "GET" in str(kwargs['context']['request'])
-        is_PUT = "PUT" in str(kwargs['context']['request'])
-        is_POST = "POST" in str(kwargs['context']['request'])
-        is_DELETE = "DELETE" in str(kwargs['context']['request'])
-
-        user = kwargs['context']['request']._user
-        permissions = convert_to_list(user.user_permissions.all())
-        for group in user.groups.all():
-            groups_permissions = convert_to_list(group.permissions.all())
-            permissions += list(groups_permissions)
-        permissions = list(filter(lambda x: 'field' in x, permissions))
-        view_fields = []
-        change_fields = []
+        method = ''
+        try:
+            method = kwargs['context']['request'].method
+            user = kwargs['context']['request']._user
+            permissions = convert_to_list(user.user_permissions.all())
+            for group in user.groups.all():
+                groups_permissions = convert_to_list(group.permissions.all())
+                permissions += list(groups_permissions)
+            permissions = list(filter(lambda x: 'field' in x, permissions))
+        except:
+            pass
+        
+        view_fields = None
+        change_fields = None
 
         super(DynamicSerializer, self).__init__(*args, **kwargs)
-
-        if(is_PUT):
-            permission = permision_chack('change', modelname, user)
-            if (permission['is_premited']):
-                change_fields = permission['fields']
-            else:
-                raise serializers.ValidationError(
-                    {'permission error': permission['message']})
-        if(is_GET):
+        if(method=="GET"):
             permission = permision_chack('view', modelname, user)
             if (permission['is_premited']):
                 view_fields = permission['fields']
             else:
                 raise serializers.ValidationError(
                     {'permission error': permission['message']})
-        view_fields = None
-        change_fields = None
+        if(method=="PUT"):
+            permission = permision_chack('change', modelname, user)
+            if (permission['is_premited']):
+                change_fields = permission['fields']
+            else:
+                raise serializers.ValidationError(
+                    {'permission error': permission['message']})
+        
+        if(method=="DELETE"):
+            permission = permision_chack('delete', modelname, user)
+            if (not permission['is_premited']):
+                raise serializers.ValidationError(
+                    {'permission error': permission['message']})
+        
+        if(method=="POST"):
+            permission = permision_chack('add', modelname, user)
+            if (not permission['is_premited']):
+                raise serializers.ValidationError(
+                    {'permission error': permission['message']})
+        
         fields = kwargs.pop('fields', view_fields)
         read_only_fields = kwargs.pop('read_only_fields', change_fields)
 
-        if fields is not None:
+        if fields is not view_fields:
             allowed = set(fields)
             existing = set(self.fields)
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
-        if read_only_fields is not None:
+        if read_only_fields is not change_fields:
             for f in read_only_fields:
                 try:
                     self.fields[f].read_only = True
@@ -98,6 +93,8 @@ class ItemsView(mixins.ListModelMixin,
 
     pagination_class = PageNumberPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = '__all__'
+    filterset_fields = '__all__'
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

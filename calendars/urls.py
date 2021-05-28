@@ -100,16 +100,11 @@ class CalinderSeriazliser(DynamicSerializer):
         fields = '__all__'
 
 
-fields = ["id", "deleted", "title", "description", "start",
-          "end", "date_created", "date_type", "created_by", "users", ]
-
 
 class CalindersView(ItemsView):
     ModelName = 'date'
     queryset = MyModel.objects.all()
     serializer_class = CalinderSeriazliser
-    search_fields = fields
-    filterset_fields = fields
 
     # def post(self, request, *args, **kwargs):
     #     start_date = pytz.UTC.localize(parser.parse(request.data['start']))

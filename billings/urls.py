@@ -24,13 +24,11 @@ class paymentsSer(QueryFieldsMixin, serializers.ModelSerializer):
 
 
 class BillginsView(ItemsView):
-    ModelName = 'payment'
     queryset = MyModel.objects.all()
     serializer_class = paymentsSer
 
 
 class BillginView(ItemView):
-    ModelName = 'payment'
     queryset = MyModel.objects.all()
     serializer_class = paymentsSer
 

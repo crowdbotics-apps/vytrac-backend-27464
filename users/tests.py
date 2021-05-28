@@ -1,23 +1,11 @@
-from django.contrib.auth.models import Permission
-from django.contrib.auth.models import Group
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APIRequestFactory
-from rest_framework.test import RequestsClient
 from django.urls import include, path, reverse
 from rest_framework.test import APITestCase, URLPatternsTestCase
 from users.models import User
-from rest_framework.test import force_authenticate
-from requests.auth import HTTPBasicAuth
 
 from rest_framework.test import APIRequestFactory
-from users.views import UsersView
-perm_tuple = [(x.id, x.name)
-              for x in Permission.objects.all()]
-
-# print('======================')
-# print(perm_tuple)
-# print('======================')
 
 
 class AuthTestings(APITestCase):

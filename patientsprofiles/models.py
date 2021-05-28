@@ -36,6 +36,7 @@ class PatientProfile(SafeDeleteModel):
     prescriptions = models.TextField(max_length=999, blank=True, null=True)
     symptoms = models.ManyToManyField(
         Symptoms, related_name='symptoms', blank=True)
+    blood_pressure = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         permissions = (

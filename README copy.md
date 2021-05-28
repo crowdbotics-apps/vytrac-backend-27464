@@ -15,7 +15,14 @@ This is a repository for a web application developed with Django, built with [Cr
 
 The end points that are not documeted in swagger.
 
+- /billings/
+
+  - you will need only **GET** **PUT**,
+  - You wont need **DELTE** becuase this data will be immutable
+  - You wont need **POST** because billes data will be created automaticly after a user request a servce.
+
 - /notifcations/
+
   - **onmessage**
     {
     "message": [
@@ -43,8 +50,24 @@ The end points that are not documeted in swagger.
     }
   - **send**
     {id:1, is_seen:true}
-- /timesheets/
-  return excele sheet logic like for statstics and such
+
+- /statistics/
+
+  - Example1 to get the change of somons blood pruser do this
+
+    - First filter data like "?field_target=blood_pressure"
+    - Then select the fields that you need "&fields=field_value,date_created"
+    - Then select the patien or the object that you need to do statstics on "&object_id=9"
+    - Then do this "&time_frame=minute&target=field_value&cal=avg"
+      - cal = avg, min, max...
+      - time_frame= minute/day/minuth/year
+
+  - Example2 to get the change the number of patient thro over time 🚧
+
+    - First filter data like "?field_target=patientprofile"
+    - Then select the fields that you need "&fields=field_value,date_created"
+    - then add "&count=patientprofile"
+
   - **GET** headers={}
 
 # Development

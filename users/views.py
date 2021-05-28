@@ -252,13 +252,7 @@ class UserView(ItemView):
     serializer_class = serializers.UsersSerializer
 
 
-fields = ["id", "password", "last_login", "username", "email", "first_name", "last_name", "is_active", "is_staff", "is_superuser", "is_email_verified",
-          "is_role_verified", "date_joined", "receive_newsletter", "birth_date", "address", "city", "about_me", "phone_number", "imageUrl", "groups", "user_permissions"]
-
-
 class UsersView(ItemsView):
     ModelName = 'user'
     queryset = User.objects.all()
     serializer_class = serializers.UsersSerializer
-    search_fields = fields
-    filterset_fields = fields

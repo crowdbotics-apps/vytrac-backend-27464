@@ -23,13 +23,11 @@ class GroupSer(QueryFieldsMixin, serializers.ModelSerializer):
 
 
 class GroupsView(ItemsView):
-    ModelName = 'group'
     queryset = MyModel.objects.all()
     serializer_class = GroupSer
 
 
 class GroupView(ItemView):
-    ModelName = 'group'
     queryset = MyModel.objects.all()
     serializer_class = GroupSer
 

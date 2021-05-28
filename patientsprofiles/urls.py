@@ -15,6 +15,7 @@ fields = ["id",  "deleted",  "date_created",  "is_active",  "is_adhering",
 
 
 class PationtsView(ItemsView):
+    MyModel = MyModel
     queryset = MyModel.objects.all()
     serializer_class = ItemSer
     search_fields = fields
@@ -22,6 +23,7 @@ class PationtsView(ItemsView):
 
 
 class PationtView(ItemView):
+    MyModel = MyModel
     queryset = MyModel.objects.all()
     serializer_class = ItemSer
 
