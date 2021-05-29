@@ -1,3 +1,5 @@
+from notifications.consumers import Alerts
+from channels.testing import HttpCommunicator
 from notifications.models import Notifications
 from django.test import TestCase
 
@@ -19,24 +21,20 @@ perm_tuple = [(x.id, x.name)
 login_data = {'username': 'newusername',
               'password': 'password'}
 
-from django.test import TestCase
-from channels.testing import HttpCommunicator
-from notifications.consumers import Alerts
-
 
 class MyTests(TestCase):
     client = APIClient()
     lg_res = client.post('/users/login/', login_data, format='json')
     token = lg_res.data["access"]
+
     async def test_my_consumer(self):
         pass
-        communicator = HttpCommunicator(Alerts, "GET", f"/alerts/?token={self.token}/")
-        #TODO response = await communicator.get_response()
+        communicator = HttpCommunicator(
+            Alerts, "GET", f"/alerts/?token={self.token}/")
+        # TODO response = await communicator.get_response()
         # response["headers"]
         # self.assertEqual(response["body"], b"test response")
         # self.assertEqual(response["status"], 200)
-
-
 
 
 class AlertsTests(APITestCase):
@@ -73,11 +71,13 @@ class AlertsTests(APITestCase):
         client.credentials(
             HTTP_AUTHORIZATION=f'Bearer {lg_res.data["access"]}')
         assert len(Notifications.objects.all()) == 0
+
         create_res = client.post('/calendars/', {
             "title": "first",
             "description": "",
             "start": after_1_h,
             "end": after_5_h,
+            "created_by": 1,
             "date_type": 1,
             "users": [1]
         }, format='json')

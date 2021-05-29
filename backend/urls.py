@@ -33,5 +33,6 @@ urlpatterns = [
     path('patient/', include('patientsprofiles.urls')),
     path('groups/', include('permissions.urls')),
     path('statistics/', include('timesheets.urls')),
-    
+    path('reports/', include('reports.urls')),
+
 ]

@@ -1,9 +1,12 @@
+
+from Myclasses import Rec
+from multiselectfield import MultiSelectField
 from django.db.models.fields.related import ManyToManyField
 from safedelete.models import (
     SafeDeleteModel,
     NO_DELETE
 )
-from django.core.validators import RegexValidator
+from django.core.validators import MaxLengthValidator, RegexValidator
 from django.core.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
 from django.dispatch import receiver
@@ -34,6 +37,30 @@ USERNAME = RegexValidator(
     r'^[a-zA-Z ]+$', 'only letter from a-z are allowed')
 
 
+REC = (
+    ('0 G day', 'Every day.'),
+
+)
+
+
+class Availablity(SafeDeleteModel):
+    title = models.CharField(max_length=30, null=True, blank=True)
+    description = models.TextField(max_length=9999, blank=True, null=True)
+    start = models.DateTimeField(null=True)
+    end = models.DateTimeField(null=True)
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    recurrence = Rec(blank=True, choices=REC)
+
+
+class Settings(SafeDeleteModel):
+    # notifcaions settings/report settings
+    type = models.CharField(max_length=30, choices=(
+        ('notifcations', 'notifcations settings'), ('reporet', 'reporet tashbord settings')), unique=True)
+    see_all = models.BooleanField(default=False)
+
+
 class User(AbstractUser, PermissionsMixin):
     username = models.CharField(
         max_length=30, unique=True, validators=[USERNAME])
@@ -54,6 +81,11 @@ class User(AbstractUser, PermissionsMixin):
     phone_number = models.TextField(
         max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
     imageUrl = models.CharField(max_length=900, blank=True, null=True)
+    # TODO if not avablae then you can't create apoentment
+    date_avalable = models.ManyToManyField(
+        Availablity, related_name='date_avalable', blank=True)
+    settings = models.ManyToManyField(
+        Settings, related_name='who_can_see_comment', blank=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', ]

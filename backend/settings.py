@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'patientsprofiles',
     'automations',
     'permissions',
+    'reports',
 
     # packages
     'channels',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'safedelete',
     'rest_framework_simplejwt.token_blacklist',
+
 
 ]
 

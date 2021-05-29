@@ -90,8 +90,8 @@ class CalinderTests(APITestCase):
         assert "You can't have a meeting start or end before now." in str(
             create_res.data)
         self.assertEqual(create_res.status_code, status.HTTP_400_BAD_REQUEST)
-
         assert len(Date.objects.all()) == 0
+
         create_res = client.post('/calendars/', {
             "title": "first",
             "description": "",
@@ -100,7 +100,6 @@ class CalinderTests(APITestCase):
             "date_type": 1,
             "users": [1]
         }, format='json')
-
         self.assertEqual(create_res.status_code, status.HTTP_201_CREATED)
         assert len(Date.objects.all()) >= 1
         new_date = Date.objects.create(title='near', start=after_1_h, end=after_5_h,

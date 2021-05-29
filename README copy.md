@@ -21,7 +21,7 @@ The end points that are not documeted in swagger.
   - You wont need **DELTE** becuase this data will be immutable
   - You wont need **POST** because billes data will be created automaticly after a user request a servce.
 
-- /notifcations/
+- /alerts/ "convential I should name it notifcations"
 
   - **onmessage**
     {
@@ -53,6 +53,7 @@ The end points that are not documeted in swagger.
 
 - /statistics/
 
+  - quick example "statistics/?field_target=blood_pressure&object_id=9&time_frame=minute&target=field_value&cal=max/"
   - Example1 to get the change of somons blood pruser do this
 
     - First filter data like "?field_target=blood_pressure"

@@ -1,4 +1,5 @@
 
+from django.db.models.fields import related
 from django.db.models.fields.related import OneToOneField
 from safedelete.models import SafeDeleteModel, NO_DELETE
 from django.db.models import signals
@@ -14,49 +15,53 @@ import getpass
 
 class ChangeTrack(SafeDeleteModel):
     # TODO automaticlly add the current loged in user
-    by = models.ForeignKey(settings.AUTH_USER_MODEL,null=True, on_delete=models.SET_NULL)
+    by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                           null=True, on_delete=models.SET_NULL)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     RCHOICES = (
         ('added', 'added'),
         ('changed', 'changed'),
         ('deleted', 'deleted'),
     )
-    action_type = models.CharField(choices=RCHOICES,max_length=50, blank=True)
+    action_type = models.CharField(choices=RCHOICES, max_length=50, blank=True)
+    related_to = models.ForeignKey(
+        User, related_name='related_name', null=True, on_delete=models.SET_NULL)
     model_target = models.CharField(max_length=50, blank=True)
-    object_id = models.IntegerField(max_length=50, blank=True,null=True)
+    object_id = models.IntegerField(max_length=50, blank=True, null=True)
     field_target = models.CharField(max_length=50, blank=True)
     field_value = models.CharField(max_length=50, blank=True)
 
-@receiver(signals.pre_save,sender=PatientProfile)
-def __init__(instance,update_fields,sender, *args, **kwargs):
+
+@receiver(signals.pre_save, sender=PatientProfile)
+def __init__(instance, update_fields, sender, *args, **kwargs):
     try:
         old_object = PatientProfile.objects.get(id=instance.id)
         for index, item in enumerate(old_object._meta.fields):
             field_target = item.name
-            field_value = str(getattr(instance,field_target))
-            old_field_value = str(getattr(old_object,field_target))
+            field_value = str(getattr(instance, field_target))
+            old_field_value = str(getattr(old_object, field_target))
             # TODO symptoms
             # print('======================')
             # print(instance.symptoms.all())
             # print(old_object.symptoms.all())
             # print('======================')
             if (old_field_value != field_value):
-                ChangeTrack.objects.create(action_type='changed',model_target=str('PatientProfile'),field_value=field_value,field_target=field_target,object_id=instance.id)
+                # TODO realted_to = PatientProfile.user
+                ChangeTrack.objects.create(action_type='changed', model_target=str(
+                    'PatientProfile'), field_value=field_value, field_target=field_target, object_id=instance.id)
     except:
         pass
 
 
-
-
-@receiver(signals.post_save,sender=PatientProfile)
-def __init__(instance,created,update_fields,sender, *args, **kwargs):
+@receiver(signals.post_save, sender=PatientProfile)
+def __init__(instance, created, update_fields, sender, *args, **kwargs):
     if (created):
         for index, item in enumerate(instance._meta.fields):
             field_target = item.name
-            field_value = str(getattr(instance,field_target))
-            ChangeTrack.objects.create(action_type='added',model_target=str('DateType'),field_value=field_value,field_target=field_target,object_id=instance.id)
-                
-
+            field_value = str(getattr(instance, field_target))
+            # TODO realted_to = PatientProfile.user
+            ChangeTrack.objects.create(action_type='added', model_target=str(
+                'DateType'), field_value=field_value, field_target=field_target, object_id=instance.id)
 
 
 # @receiver(signals.pre_delete,sender=DateType)
@@ -66,7 +71,7 @@ def __init__(instance,created,update_fields,sender, *args, **kwargs):
 #     # try:
 #         # obj = instance.change_message
 #         # obj = ast.literal_eval(obj)
-        
+
 #     #     for field in obj:
 #     #         for key in field.keys():
 #     #             print('x ================')
@@ -75,15 +80,14 @@ def __init__(instance,created,update_fields,sender, *args, **kwargs):
 #     #                 print(instance[field2])
 #     #                 print(sender_object[key])
 #     #                 print(sender_object['name'])
-                    
+
 #     #                 print({'with dont':sender_object.name})
 
-                    
+
 #     #                 print(field2)
 #     # except:
 #     #     print('error ================')
 #     # print(instance)
-
 
 
 # # # @receiver(signals.post_delete)

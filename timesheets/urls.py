@@ -17,7 +17,7 @@ from rest_framework import status
 from django.db.models import Q
 from users.models import User
 
-from django.db.models.functions import TruncMonth, TruncMinute,TruncDay
+from django.db.models.functions import TruncMonth, TruncMinute, TruncDay
 from django.db.models import Count
 from django.db.models import functions
 
@@ -26,7 +26,6 @@ from django.db import models as CAL
 
 
 MyModel = ChangeTrack
-
 
 
 class StatisticSer(DynamicSerializer):
@@ -38,16 +37,21 @@ class StatisticSer(DynamicSerializer):
 
 class StatsticsView(ItemsView):
     def get(self, request, *args, **kwargs):
+        # TODO filter based on related to
+        # if user not staff than filter based on ralted to
+
         getter = request.GET
-        data = ChangeTrack.objects.all()
+        data = MyModel.objects.all()
 
-        fields = [ "id", "deleted", "date_created", "action_type", "model_target", "object_id", "field_target", "field_value", "by"]
-
+        fields = []
+        for i in MyModel._meta.fields:
+            fields.append(i.name)
         for field in fields:
-            q = Q(**{"%s"% field: getter.get(field) })
-            if (getter.get(field)!=None):
+            q = Q(**{"%s" % field: getter.get(field)})
+            if (getter.get(field) != None):
                 data = data.filter(q)
 
+# the above is the same as this
         # if (getter.get('id')!=None):
         #     data = data.filter(id=getter.get('id'))
         # if (getter.get('deleted')!=None):
@@ -65,31 +69,28 @@ class StatsticsView(ItemsView):
         # if (getter.get('by')!=None):
         #     data = data.filter(by=getter.get('by'))
 
-
-
         try:
             time_frame = getter.get('time_frame').title()
             target = getter.get('target').lower()
             calttr = getter.get('cal').lower()
 
             Trunc = getattr(functions, 'Trunc'+time_frame)
-            
+
             cal = getattr(CAL, calttr.title())
             # Avg, F, RowRange, Window, Max, Min
-            data = data.annotate(time=Trunc('date_created')).values('time').annotate(avg=cal(target))
+            data = data.annotate(time=Trunc('date_created')).values(
+                'time').annotate(avg=cal(target))
             return Response(list(data))
         except:
             return self.list(request, *args, **kwargs)
-        
-    queryset = MyModel.objects.all()
-    serializer_class = StatisticSer
-    
 
-
-class  StatsticView(ItemView):
     queryset = MyModel.objects.all()
     serializer_class = StatisticSer
 
+
+class StatsticView(ItemView):
+    queryset = MyModel.objects.all()
+    serializer_class = StatisticSer
 
 
 urlpatterns = [

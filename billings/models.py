@@ -1,3 +1,5 @@
+from patientsprofiles.models import Roster
+from django.conf import settings
 from django.db import models
 from users.models import User
 from safedelete.managers import SafeDeleteManager
@@ -24,5 +26,10 @@ class Payment(SafeDeleteModel):
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     is_payed = models.BooleanField(default=False)
     amount = models.CharField(max_length=50, blank=True)
-    user = models.ForeignKey(User, related_name='Payment_user',
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='Payment_user',
                              on_delete=models.DO_NOTHING, null=True,)
+
+# @receiver(signals , sender=Roster)
+# def my_handler(sender, **kwargs):
+    # if create new roseter then create new billings with roster title
+    # print(sender)

@@ -7,10 +7,11 @@ from .models import Notifications
 from . import serializers
 from django.db.models import Q
 
-def return_notifcations(Notifications,user):
-    notifications =  Notifications.objects.filter(target_users__in=[user.id])
+
+def return_notifcations(Notifications, user):
+    notifications = Notifications.objects.filter(target_users__in=[user.id])
     if (user.is_staff or user.is_superuser):
-        notifications =  Notifications.objects.all()
+        notifications = Notifications.objects.all()
     return notifications
 
 
@@ -29,38 +30,42 @@ class Alerts(WebsocketConsumer):
         print(close_code)
         print(self)
         print('======================')
-        
 
     def receive(self, text_data):
         user = self.scope["user"]
         data = json.loads(text_data)
         print('receive======================')
         errors = []
-        notifcation = return_notifcations(Notifications,user).filter(id=data['id'])
+        notifcation = return_notifcations(
+            Notifications, user).filter(id=data['id'])
 
         if('is_seen' not in data):
-            errors.append({'field name error': 'One of field names is not recognized.'})
+            errors.append(
+                {'field name error': 'One of field names is not recognized.'})
 
         if (not notifcation.exists()):
-            errors.append({'permission error': 'You are not permisted to update this alert.'})
+            errors.append(
+                {'permission error': 'You are not permisted to update this alert.'})
         try:
-            if (notifcation.filter(is_seen=True).exists() and data['is_seen'].title()=='True'):
+            if (notifcation.filter(is_seen=True).exists() and data['is_seen'].title() == 'True'):
                 errors.append({'value error': 'value already seted to true'})
         except:
             pass
 
-        if(len(errors)>=0):
+        if(len(errors) >= 0):
             message = json.dumps({'error': errors})
             self.send(message)
 
-        if(len(errors)==0):
+        if(len(errors) == 0):
             notifcation.update(is_seen=True)
             serializer = serializers.ItemsSer(
-            return_notifcations(Notifications,user) , many=True)
+                return_notifcations(Notifications, user), many=True)
             x = json.dumps({'message': serializer.data})
             self.send(x)
 
     def connect(self):
+        # TODO return notifcations pased on user settings
+        # ex: if provider whatn to see only his realted pationtes
         print('connect======================')
         print(self)
         print('======================')
@@ -76,14 +81,14 @@ class Alerts(WebsocketConsumer):
 
         self.accept()
         serializer = serializers.ItemsSer(
-            return_notifcations(Notifications,user) , many=True)
+            return_notifcations(Notifications, user), many=True)
         x = json.dumps({'message': serializer.data})
         self.send(x)
 
         @receiver(signals.post_save, sender=Notifications)
         def __init__(instance, sender, signal, *args, **kwargs):
             serializer = serializers.ItemsSer(
-                return_notifcations(sender,user), many=True)
+                return_notifcations(sender, user), many=True)
             x = json.dumps({'message': serializer.data})
             self.send(x)
 

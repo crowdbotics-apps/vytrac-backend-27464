@@ -8,6 +8,8 @@ import inspect
 from . import models
 
 admin.site.register(models.User)
+admin.site.register(models.Availablity)
+
 # potnetially we may need to keep group named group.
 # admin.site.register(models.User)
 # admin.site.register(models.Other)

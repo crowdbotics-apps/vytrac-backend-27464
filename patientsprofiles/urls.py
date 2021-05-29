@@ -10,16 +10,10 @@ class ItemSer(DynamicSerializer):
         fields = '__all__'
 
 
-fields = ["id",  "deleted",  "date_created",  "is_active",  "is_adhering",
-          "prescriptions",  "created_by",  "user",  "care_taker",  "booked_servces",  "symptoms", ]
-
-
 class PationtsView(ItemsView):
     MyModel = MyModel
     queryset = MyModel.objects.all()
     serializer_class = ItemSer
-    search_fields = fields
-    filterset_fields = fields
 
 
 class PationtView(ItemView):

@@ -31,6 +31,8 @@ class CalinderSeriazliser(DynamicSerializer):
     date_created = serializers.CharField(required=False)
 
     def validate(self, data, *args, **kwargs):
+        # TODO add recursive validation logic
+        # TODO  for i in user.avalable if date not in i reaise 'User can be avalabel in [], user already have dates in []'
         messages = []
         my_format = '%Y-%m-%dT%H:%M:%S.%fZ'
         now = datetime.datetime.now().strftime(my_format)
@@ -98,7 +100,6 @@ class CalinderSeriazliser(DynamicSerializer):
     class Meta:
         model = MyModel
         fields = '__all__'
-
 
 
 class CalindersView(ItemsView):
