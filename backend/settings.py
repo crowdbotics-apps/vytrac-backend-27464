@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'safedelete',
     'rest_framework_simplejwt.token_blacklist',
+
 ]
 
 MIDDLEWARE = [
@@ -160,10 +161,10 @@ AUTHENTICATION_BACKENDS = [
 # 2)
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
-            'rest_framework.renderers.JSONRenderer',
-            'rest_framework.renderers.BrowsableAPIRenderer',
-            'drf_renderer_xlsx.renderers.XLSXRenderer',
-        ),
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'drf_renderer_xlsx.renderers.XLSXRenderer',
+    ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     # "USER_DETIALS_SERLIZER": 'users.serlizer.UserSerializer',

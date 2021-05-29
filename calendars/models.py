@@ -2,6 +2,27 @@ from django.db import models
 from safedelete.models import SafeDeleteModel, NO_DELETE
 from users.models import User
 from django.conf import settings
+from multiselectfield import MultiSelectField
+
+
+REC = (
+    ('day', 'Every day.'),
+    ('month', 'Every month.'),
+    ('year', 'Every year.'),
+    ('sunday', 'Every sunday.'),
+    ('monday', 'Every monday.'),
+    ('tuesday', 'Every tuesday.'),
+    ('wednesday', 'Every wednesday.'),
+    ('thursday', 'Every thursday.'),
+    ('friday', 'Every friday.'),
+    ('saturday', 'Every saturday.'),
+
+)
+
+# def validate_chose(value):
+#     print('======================')
+#     print(value)
+#     print('======================')
 
 
 class DateType(SafeDeleteModel):
@@ -21,3 +42,5 @@ class Date(SafeDeleteModel):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, related_name='date_with', blank=True)
+    recurrence = MultiSelectField(
+        choices=REC, default='none')

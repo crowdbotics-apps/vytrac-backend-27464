@@ -1,4 +1,5 @@
 {
+      "python.pythonPath": "/usr/local/bin/python3.9"
       // "python.pythonPath": "/Users/apple/.local/share/virtualenvs/Tweetme-2-6dfdf9913f7389235bc0ca81c0deec6f-IGec0ZR-/bin/python",
       // "[python]": {
       //       "editor.insertSpaces": true,

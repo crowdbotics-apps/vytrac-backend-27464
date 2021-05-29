@@ -6,3 +6,8 @@ pipenv lock --pre --clear
 ## you may need psycopg2==2.8.6
 #later commands
 heroku config:set DISABLE_COLLECTSTATIC=1
+
+find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
+find . -path "*/migrations/*.pyc"  -delete
+pip uninstall django
+pip install django

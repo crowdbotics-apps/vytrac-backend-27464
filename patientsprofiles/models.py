@@ -37,6 +37,7 @@ class PatientProfile(SafeDeleteModel):
     symptoms = models.ManyToManyField(
         Symptoms, related_name='symptoms', blank=True)
     blood_pressure = models.CharField(max_length=100, blank=True, null=True)
+    age = models.PositiveIntegerField()
 
     class Meta:
         permissions = (
