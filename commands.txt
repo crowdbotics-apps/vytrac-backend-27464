@@ -8,6 +8,5 @@ pipenv lock --pre --clear
 heroku config:set DISABLE_COLLECTSTATIC=1
 
 find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
-find . -path "*/migrations/*.pyc"  -delete
 pip uninstall django
 pip install django
