@@ -28,11 +28,10 @@ urlpatterns = [
                                  cache_timeout=0), name='schema-swagger-ui'),
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
-    path('billing/', include('billings.urls')),
     path('calendars/', include('calendars.urls')),
-    path('patient/', include('patientsprofiles.urls')),
+    path('patient/', include('manage_patients.urls')),
     path('groups/', include('permissions.urls')),
     path('statistics/', include('timesheets.urls')),
-    path('reports/', include('reports.urls')),
+    path('tasks/', include('tasks.urls')),
 
 ]

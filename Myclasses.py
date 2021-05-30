@@ -191,9 +191,6 @@ def myfunction(self, *args, **keyarg):
 
 class Rec(MultiSelectField):
     def _choices_is_value(self, *args, **keyarg):
-        print('======================')
-        print(self.__dict__)
-        print('======================')
         self.choices = REC
         self.max_length = 93
         self.validators = [myfunction]

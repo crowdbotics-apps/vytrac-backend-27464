@@ -6,7 +6,7 @@ from django.db.models import signals
 from django.dispatch import receiver
 from django.db import models
 from django.conf import settings
-from patientsprofiles.models import PatientProfile, Symptoms
+from manage_patients.models import Profile, Symptoms
 from users.models import User
 import ast
 from calendars.models import DateType
@@ -32,10 +32,10 @@ class ChangeTrack(SafeDeleteModel):
     field_value = models.CharField(max_length=50, blank=True)
 
 
-@receiver(signals.pre_save, sender=PatientProfile)
+@receiver(signals.pre_save, sender=Profile)
 def __init__(instance, update_fields, sender, *args, **kwargs):
     try:
-        old_object = PatientProfile.objects.get(id=instance.id)
+        old_object = Profile.objects.get(id=instance.id)
         for index, item in enumerate(old_object._meta.fields):
             field_target = item.name
             field_value = str(getattr(instance, field_target))
@@ -46,20 +46,20 @@ def __init__(instance, update_fields, sender, *args, **kwargs):
             # print(old_object.symptoms.all())
             # print('======================')
             if (old_field_value != field_value):
-                # TODO realted_to = PatientProfile.user
+                # TODO realted_to = Profile.user
                 ChangeTrack.objects.create(action_type='changed', model_target=str(
-                    'PatientProfile'), field_value=field_value, field_target=field_target, object_id=instance.id)
+                    'Profile'), field_value=field_value, field_target=field_target, object_id=instance.id)
     except:
         pass
 
 
-@receiver(signals.post_save, sender=PatientProfile)
+@receiver(signals.post_save, sender=Profile)
 def __init__(instance, created, update_fields, sender, *args, **kwargs):
     if (created):
         for index, item in enumerate(instance._meta.fields):
             field_target = item.name
             field_value = str(getattr(instance, field_target))
-            # TODO realted_to = PatientProfile.user
+            # TODO realted_to = Profile.user
             ChangeTrack.objects.create(action_type='added', model_target=str(
                 'DateType'), field_value=field_value, field_target=field_target, object_id=instance.id)
 

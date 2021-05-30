@@ -54,9 +54,14 @@ class Availablity(SafeDeleteModel):
     recurrence = Rec(blank=True, choices=REC)
 
 
+models_names = (('patien profiel', 'patien profiel'),)
+
+
 class Settings(SafeDeleteModel):
     # notifcaions settings/report settings
-    type = models.CharField(max_length=30, choices=(
+    #
+    watch = models.CharField(max_length=50, choices=models_names, blank=True)
+    settings_type = models.CharField(max_length=30, choices=(
         ('notifcations', 'notifcations settings'), ('reporet', 'reporet tashbord settings')), unique=True)
     see_all = models.BooleanField(default=False)
 

@@ -37,13 +37,13 @@ class Date(SafeDeleteModel):
     users = models.ManyToManyField(User, related_name='date_with', blank=True)
     recurrence = Rec(blank=True, choices=REC)
     # TODO Automate appoentment imporatnace
-    # if a patient with vital = importance meduam
-    # if a atient with 2 vitals = importance heigh
+    # if a patient with vital = priority meduam
+    # if a atient with 2 vitals = priority heigh
     RCHOICES = (
         ('low', 'low'),
         ('averge', 'averge'),
         ('heigh', 'heigh'),)
-    importance = models.CharField(
+    priority = models.CharField(
         max_length=50, choices=RCHOICES, blank=True)
 
     # def save(self,*args, **kwargs):

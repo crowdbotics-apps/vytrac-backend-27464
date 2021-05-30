@@ -1,7 +1,8 @@
+from django.urls import path
 from Myclasses import DynamicSerializer, ItemView, ItemsView
 from django.urls import path
 from . import models
-MyModel = models.PatientProfile
+MyModel = models.Tasks
 
 
 class ItemSer(DynamicSerializer):
@@ -10,19 +11,23 @@ class ItemSer(DynamicSerializer):
         fields = '__all__'
 
 
-class PationtsView(ItemsView):
+class TasksView(ItemsView):
     MyModel = MyModel
     queryset = MyModel.objects.all()
     serializer_class = ItemSer
+    # TODO
+    # def get():
+    # tasks = Itams.objects.filter(user=request.user)
+    #     return {'tasks':tasks, 'items':Items}
 
 
-class PationtView(ItemView):
+class TaskView(ItemView):
     MyModel = MyModel
     queryset = MyModel.objects.all()
     serializer_class = ItemSer
 
 
 urlpatterns = [
-    path('', PationtsView.as_view(), name='PationtsView'),
-    path('<int:pk>/', PationtView.as_view(), name='PationtsView'),
+    path('', TasksView.as_view(), name='tasks'),
+    path('<int:pk>/', TaskView.as_view(), name='task'),
 ]

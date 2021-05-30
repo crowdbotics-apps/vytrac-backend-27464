@@ -38,11 +38,11 @@ rosters = (
 
 class Roster(SafeDeleteModel):
     title = models.CharField(max_length=30, unique=True)
-    # TODO CPT list
-    # serveces = models.CharField(choices=rosters, max_length=50, blank=True)
+    cost = models.PositiveIntegerField(blank=True, null=True)
+    serveces = models.CharField(choices=rosters, max_length=50, blank=True)
 
 
-class PatientProfile(SafeDeleteModel):
+class Profile(SafeDeleteModel):
     # plan = #TODO
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     created_by = models.ForeignKey(
@@ -75,6 +75,8 @@ class PatientProfile(SafeDeleteModel):
             ('change_patientprofile.symptoms_field', "Can change symptoms"),
         )
 
+# TODO make view for this
+
 
 class DalyPlan(SafeDeleteModel):
     created_by = models.ForeignKey(
@@ -86,7 +88,69 @@ class DalyPlan(SafeDeleteModel):
         ('heigh', 'heigh'),
     )
     is_done = models.BooleanField(default=False)
-    importance = models.CharField(
+    priority = models.CharField(
         max_length=50, choices=RCHOICES, blank=True)
     pations = models.ManyToManyField(
         User, related_name='pations_number', blank=True)
+
+
+# TODO make view for this
+class Goals(models.Model):
+    name = models.CharField(max_length=200, null=True, unique=True)
+    RCHOICES = (
+        ('low', 'low'),
+        ('averge', 'averge'),
+        ('heigh', 'heigh'),)
+    priority = models.CharField(
+        max_length=50, choices=RCHOICES, blank=True)
+    reason = models.CharField(max_length=200, blank=True)
+    informations = models.CharField(max_length=200, blank=True)
+
+
+class Thresholds(models.Model):
+    name = models.CharField(max_length=200, null=True, unique=True)
+    RCHOICES = (
+        ('low', 'low'),
+        ('averge', 'averge'),
+        ('heigh', 'heigh'),)
+    priority = models.CharField(
+        max_length=50, choices=RCHOICES, blank=True)
+    reason = models.CharField(max_length=200, blank=True)
+    informations = models.CharField(max_length=200, blank=True)
+
+
+class Reports(SafeDeleteModel):
+    title = models.CharField(max_length=30, unique=True)
+
+    RCHOICES = (
+        ('low', 'low'),
+        ('averge', 'averge'),
+        ('heigh', 'heigh'),)
+    priority = models.CharField(
+        max_length=50, choices=RCHOICES, blank=True)
+    related_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name='Reports_related_name', null=True, on_delete=models.SET_NULL)
+
+
+class CPTcode(SafeDeleteModel):
+    code = models.CharField(max_length=30, unique=True)
+
+
+class Payment(SafeDeleteModel):
+    qualified_CPTs = models.ManyToManyField(
+        CPTcode, related_name='who_can_see_comment', blank=True)
+    # or
+    # qualified_CPTs = models.OneToOneField(
+    #         CPTcode,
+    #         null=True,
+    #         blank=True,
+    #         on_delete=models.CASCADE,
+    #         primary_key=False,
+    #     )
+    eligible = models.BooleanField(default=False)
+    report_generated = models.BooleanField(default=False)
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
+    is_payed = models.BooleanField(default=False)
+    amount = models.CharField(max_length=50, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='Payment_user',
+                             on_delete=models.DO_NOTHING, null=True,)

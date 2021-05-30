@@ -17,7 +17,7 @@ class Notifications(models.Model):
         ('averge', 'averge'),
         ('heigh', 'heigh'),
     )
-    importance = models.CharField(
+    priority = models.CharField(
         max_length=50, choices=RCHOICES, blank=True)
     target_users = models.ManyToManyField(
         User, related_name='Notification_target_user', null=True, blank=True)
@@ -26,16 +26,16 @@ class Notifications(models.Model):
 
 
 @receiver(signals.post_save, sender=Date)
-def my_handler(sender, **kwargs):
+def __init__(instance, sender, signal, *args, **kwargs):
     new_notifcations = Notifications.objects.create(
-        title='date', importance='averge')
+        title='date', priority='averge')
     new_notifcations.target_users.add(User.objects.get(id=1))
-    # print('+++++=====')
-    # print(sender)
 
+
+# TODO # new_notifcations.target_users.add(instance.users)
     # TODO A3
     # sender
-    # if PatientProfile.care_taker change => Notifications.target=PatientProfile.care_taker
+    # if Profile.care_taker change => Notifications.target=Profile.care_taker
     # if  instance.change_message ='bla bla b'
     # notifcations = Notifications.create()
     # notifcations.target_users.set([user.id,user2.id])

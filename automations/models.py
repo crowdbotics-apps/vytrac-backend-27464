@@ -5,7 +5,7 @@ from django.db import models
 
 # @receiver(signals.post_save)
 # def __init__(instance, sender, signal, *args, **kwargs):
-# PatientProfile.care_taker is changed => set care_taker.permissions.can_see_PatientProfile =False
+# Profile.care_taker is changed => set care_taker.permissions.can_see_Profile =False
 # if user.group changed => autoremove from care_takerlist
 
 #     try:

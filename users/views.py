@@ -247,12 +247,11 @@ class IsActive(permissions.BasePermission):
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserView(ItemView):
-    ModelName = 'user'
+    MyModel = User
     queryset = User.objects.all()
     serializer_class = serializers.UsersSerializer
 
 
 class UsersView(ItemsView):
-    ModelName = 'user'
     queryset = User.objects.all()
     serializer_class = serializers.UsersSerializer

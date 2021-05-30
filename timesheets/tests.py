@@ -1,5 +1,5 @@
 from timesheets.models import ChangeTrack
-from patientsprofiles.models import PatientProfile
+from manage_patients.models import Profile
 from django.contrib.auth.models import Permission
 from django.contrib.auth.models import Group
 from django.urls import reverse

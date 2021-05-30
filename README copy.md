@@ -15,11 +15,13 @@ This is a repository for a web application developed with Django, built with [Cr
 
 The end points that are not documeted in swagger.
 
-- /billings/
+- /patients/billings/
 
-  - you will need only **GET** **PUT**,
-  - You wont need **DELTE** becuase this data will be immutable
-  - You wont need **POST** because billes data will be created automaticly after a user request a servce.
+  - **note**: patients will be renamed to manage_patients
+
+  * you will need only **GET** **PUT**,
+  * You wont need **DELTE** becuase this data will be immutable
+  * You wont need **POST** because billes data will be created automaticly after a user request a servce.
 
 - /alerts/ "convential I should name it notifcations"
 
@@ -32,7 +34,7 @@ The end points that are not documeted in swagger.
     "is_seen": false,
     "description": "changeddd",
     "deadline": null,
-    "importance": "",
+    "priority": "",
     "target_users": [],
     "target_groups": ['providers',]
     },
@@ -42,7 +44,7 @@ The end points that are not documeted in swagger.
     "is_seen": false,
     "description": "x",
     "deadline": null,
-    "importance": "",
+    "priority": "",
     "target_users": [],
     "target_groups": ['providers',]
     }

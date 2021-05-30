@@ -2,7 +2,6 @@ import datetime
 from re import DEBUG
 from calendars import models
 from calendars.models import Date, DateType
-from django.contrib.auth.models import Permission
 from django.contrib.auth.models import Group
 from django.db.models.query_utils import select_related_descend
 from django.urls import reverse
@@ -18,14 +17,8 @@ from requests.auth import HTTPBasicAuth
 
 from rest_framework.test import APIRequestFactory
 from users.views import UsersView
-perm_tuple = [(x.id, x.name)
-              for x in Permission.objects.all()]
 
-# print('======================')
-# print(perm_tuple)
-# print('======================')
-# register_data = {'email': 'newusername@g.com', 'username': 'newusername',
-#                  'password': 'password', 'password2': 'password', }
+
 login_data = {'username': 'newusername',
               'password': 'password'}
 

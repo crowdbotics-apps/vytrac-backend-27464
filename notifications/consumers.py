@@ -87,6 +87,7 @@ class Alerts(WebsocketConsumer):
 
         @receiver(signals.post_save, sender=Notifications)
         def __init__(instance, sender, signal, *args, **kwargs):
+            # TODO check self if work
             serializer = serializers.ItemsSer(
                 return_notifcations(sender, user), many=True)
             x = json.dumps({'message': serializer.data})

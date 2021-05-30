@@ -38,14 +38,13 @@ INSTALLED_APPS = [
     # apps
     "users",
     'timesheets',
-    'billings',
     # 'chat',
     'notifications',
     'calendars',
-    'patientsprofiles',
+    'manage_patients',
     'automations',
     'permissions',
-    'reports',
+    "tasks",
 
     # packages
     'channels',

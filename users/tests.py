@@ -4,8 +4,14 @@ from rest_framework.test import APIClient, APIRequestFactory
 from django.urls import include, path, reverse
 from rest_framework.test import APITestCase, URLPatternsTestCase
 from users.models import User
-
+from django.contrib.auth.models import Permission
 from rest_framework.test import APIRequestFactory
+
+perm_tuple = [(x.id, x.name)
+              for x in Permission.objects.all()]
+print('======================')
+print(perm_tuple)
+print('======================')
 
 
 class AuthTestings(APITestCase):
@@ -68,7 +74,6 @@ class AuthTestings(APITestCase):
         client = APIClient()
         client.credentials(HTTP_AUTHORIZATION='Bearer abc')
         resp = client.get('/users/', data={'format': 'json'})
-
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
         resp = client.get('/users/')
@@ -76,10 +81,21 @@ class AuthTestings(APITestCase):
         self.assertEqual(resp.data['permission error'],
                          ', You are not permitted to view user')
 # TODO delte data and migrations then test retur one field
-        # u.user_permissions.add(90)
+        # u.user_permissions.add(25)
         # u.save()
         # resp = client.get('/users/')
-        # assert len(resp.data[0]) == 1
+        # print('======================')
+        # print(resp.data)
+        # print('======================')
+        # assert len(resp.data) == 1
+
+        u.user_permissions.add(24)
+        u.save()
+        resp = client.get('/users/')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        resp = client.get('/users/1/')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
         u.user_permissions.add(24)
         u.save()

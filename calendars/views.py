@@ -1,5 +1,4 @@
 # import datetime
-# from billings.models import Payment
 # from warnings import WarningMessage
 # from rest_framework import generics
 # from rest_framework import mixins

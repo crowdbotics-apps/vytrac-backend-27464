@@ -40,6 +40,7 @@ class MyTests(TestCase):
 class AlertsTests(APITestCase):
 
     def test_dates_notifcations(self):
+        # TODO Create genral function to reuse in all tests
         my_format = '%Y-%m-%dT%H:%M:%S.%fZ'
         d = datetime.datetime
         now = d.now().strftime(my_format)
@@ -72,16 +73,18 @@ class AlertsTests(APITestCase):
             HTTP_AUTHORIZATION=f'Bearer {lg_res.data["access"]}')
         assert len(Notifications.objects.all()) == 0
 
-        create_res = client.post('/calendars/', {
-            "title": "first",
-            "description": "",
-            "start": after_1_h,
-            "end": after_5_h,
-            "created_by": 1,
-            "date_type": 1,
-            "users": [1]
-        }, format='json')
-        self.assertEqual(create_res.status_code, status.HTTP_201_CREATED)
-        assert len(Notifications.objects.all()) == 1
-        # TODO test target
-        # TODO test filtering
+        def test_create_notifcations(self):
+            self.assertEqual(Notifications.objects.all().count(), 0)
+            create_res = client.post('/calendars/', {
+                "title": "first",
+                "description": "",
+                "start": after_1_h,
+                "end": after_5_h,
+                "created_by": 1,
+                "date_type": 1,
+                "users": [1]
+            }, format='json')
+            self.assertEqual(Notifications.objects.all().count(), 1)
+
+        # TODO test target`
+        # TODO test filter`ing
