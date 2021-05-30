@@ -1,4 +1,4 @@
-from Myclasses import ItemView, ItemsView
+from Myclasses import DynamicSerializer, ItemView, ItemsView
 from django.urls import path
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
@@ -16,7 +16,7 @@ from django.contrib.auth.models import Group
 MyModel = Group
 
 
-class GroupSer(QueryFieldsMixin, serializers.ModelSerializer):
+class GroupSer(DynamicSerializer):
     class Meta:
         model = MyModel
         fields = '__all__'

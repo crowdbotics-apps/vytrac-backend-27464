@@ -55,6 +55,8 @@ The end points that are not documeted in swagger.
 
 - /statistics/
 
+  - **note**: Usally, you don't need **POST** here because statstics autmaiclly created when you change the patient profiel data. for example if you change the blood prusser that will be registered in form of timesheet data.
+
   - quick example "statistics/?field_target=blood_pressure&object_id=9&time_frame=minute&target=field_value&cal=max/"
   - Example1 to get the change of somons blood pruser do this
 

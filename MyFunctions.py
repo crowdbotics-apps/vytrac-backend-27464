@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Permission
 import re
 
 
@@ -54,3 +55,14 @@ def permision_chack(action, modelname, user):
         return {'is_premited': is_allowed, 'message': message, 'fields': fields}
     except:
         return {'is_premited': False, 'message': 'you are not authenticated'}
+# get_permission_id
+
+
+def get_permission_id(name):
+    perm_tuple = [(x.id, x.name)
+                  for x in Permission.objects.all()]
+
+    perm_tuple = dict([i[::-1] for i in perm_tuple])
+
+    entity_type_index = perm_tuple[name]
+    return entity_type_index

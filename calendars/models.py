@@ -27,8 +27,8 @@ class Date(SafeDeleteModel):
     date_type = models.ForeignKey(
         DateType, related_name='Model', on_delete=models.DO_NOTHING, null=True,)
     description = models.TextField(max_length=9999, blank=True, null=True)
-    start = models.DateTimeField(null=True,)
-    end = models.DateTimeField(null=True,)
+    start = models.DateField(null=True, blank=True)
+    end = models.DateField(null=True, blank=True)
     from_time = models.TimeField(null=True, blank=True, )
     to_time = models.TimeField(null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True)

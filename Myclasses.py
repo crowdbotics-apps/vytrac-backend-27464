@@ -69,11 +69,11 @@ class DynamicSerializer(QueryFieldsMixin, serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {'permission error': permission['message']})
 
-        if(method == "POST"):
-            permission = permision_chack('add', modelname, user)
-            if (not permission['is_premited']):
-                raise serializers.ValidationError(
-                    {'permission error': permission['message']})
+        # if(method == "POST"):
+        #     permission = permision_chack('add', modelname, user)
+        #     if (not permission['is_premited']):
+        #         raise serializers.ValidationError(
+        #             {'permission error': permission['message']})
 
         fields = kwargs.pop('fields', view_fields)
         read_only_fields = kwargs.pop('read_only_fields', change_fields)
@@ -176,6 +176,7 @@ REC = (
 
 
 def myfunction(self, *args, **keyarg):
+    # TODO maybe add this to the serializer insead of here.
     if str(self).count('0') > 1:
         raise ValidationError(
             _("You should choose one, either every day or every month or every year"),)

@@ -4,14 +4,8 @@ from rest_framework.test import APIClient, APIRequestFactory
 from django.urls import include, path, reverse
 from rest_framework.test import APITestCase, URLPatternsTestCase
 from users.models import User
-from django.contrib.auth.models import Permission
-from rest_framework.test import APIRequestFactory
 
-perm_tuple = [(x.id, x.name)
-              for x in Permission.objects.all()]
-print('======================')
-print(perm_tuple)
-print('======================')
+from rest_framework.test import APIRequestFactory
 
 
 class AuthTestings(APITestCase):
