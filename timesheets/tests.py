@@ -66,6 +66,10 @@ class TestTimeSheets(APITestCase):
         self.assertEqual(patient_res.status_code, status.HTTP_201_CREATED)
 
         res = self.client.get(
+            '/statistics/?field_target=blood_pressure&object_id=1&time_frame=minute&target=field_value&cal=avg')
+        assert "'avg': 120.0" in str(res.data)
+
+        res = self.client.get(
             '/statistics/?field_target=blood_pressure&object_id=1&time_frame=minute&target=field_value&cal=max')
         assert '130' in str(res.data)
         assert not '999999' in str(res.data)
@@ -80,11 +84,11 @@ class TestTimeSheets(APITestCase):
         # print('======================')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        res = self.client.get(
-            '/statistics/?id__lt=3&fields=id')
-        print('res test debug======================')
-        # # TODO why this return all data?
-        # Note it in urls.py:68 it return the correct data.
+        # res = self.client.get(
+        #     '/statistics/?field_value__lte=120/80&fields=field_value')
+        # print('res test debug======================')
+        # TODO why this return all data?
+        # Note it in urls.py: 68 it return the correct data.
         # print(res.data)
         # print('======================')
         # assert '999999' in str(res.data)

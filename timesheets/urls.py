@@ -52,27 +52,33 @@ class StatsticsView(ItemsView):
             if (getter.get(field) != None):
                 query &= q
         data = data.filter(query)
+        # print('xxx======================')
+        # print(list(data))
+        # print(query)
+        # print('======================')
+        if (getter.get('time_frame') != None):
+            try:
 
-        try:
-            time_frame = getter.get('time_frame').title()
-            target = getter.get('target').lower()
-            calttr = getter.get('cal').lower()
+                time_frame = getter.get('time_frame').title()
+                target = getter.get('target').lower()
+                calttr = getter.get('cal').lower()
 
-            Trunc = getattr(functions, 'Trunc'+time_frame)
-            cal = getattr(CAL, calttr.title())
-            # Avg, F, RowRange, Window, Max, Min
-            data = data.annotate(time=Trunc('date_created')).values(
-                'time').annotate(avg=cal(target))
-            return Response(list(data))
-        except:
-            return self.list(data)
+                Trunc = getattr(functions, 'Trunc'+time_frame)
+                cal = getattr(CAL, calttr.title())
+                # Avg, F, RowRange, Window, Max, Min
+                data = data.annotate(time=Trunc('date_created')).values(
+                    'time').annotate(avg=cal(target))
+                return Response(list(data))
+            except:
+                pass
+        return self.list(data)
 
     queryset = MyModel.objects.all()
     serializer_class = StatisticSer
 
 
 class StatsticView(ItemView):
-    queryset = MyModel.objects.all()
+    queryset = MyModel.objects.filter(id=2)
     serializer_class = StatisticSer
 
 

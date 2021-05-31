@@ -1,5 +1,6 @@
 python3.9 -m venv env
 source env/bin/activate
+find . -name '*.py' | entr python ./manage.py test
 ./manage.py runserver
 pip install -r requirements.txt
 pipenv lock --pre --clear
