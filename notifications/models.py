@@ -12,6 +12,7 @@ class Notifications(models.Model):
     is_seen = models.BooleanField(default=False)
     description = models.TextField(max_length=999, blank=True, null=True)
     deadline = models.DateTimeField(null=True)
+    response_time = models.DurationField(null=True, blank=True)
     RCHOICES = (
         ('low', 'low'),
         ('averge', 'averge'),

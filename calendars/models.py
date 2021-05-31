@@ -35,7 +35,7 @@ class Date(SafeDeleteModel):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, related_name='date_with', blank=True)
-    recurrence = Rec(blank=True, choices=REC)
+    recurrence = Rec(choices=REC, blank=True, null=True)
     # TODO Automate appoentment imporatnace
     # if a patient with vital = priority meduam
     # if a atient with 2 vitals = priority heigh

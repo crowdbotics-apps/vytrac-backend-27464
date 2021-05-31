@@ -1,3 +1,4 @@
+from tests_credentials import tests_setup_function
 from timesheets.models import ChangeTrack
 from manage_patients.models import Profile
 from django.contrib.auth.models import Permission
@@ -13,7 +14,6 @@ from rest_framework.test import force_authenticate
 from requests.auth import HTTPBasicAuth
 
 from rest_framework.test import APIRequestFactory
-from users.views import UsersView
 perm_tuple = [(x.id, x.name)
               for x in Permission.objects.all()]
 
@@ -21,28 +21,12 @@ perm_tuple = [(x.id, x.name)
 
 
 class TestTimeSheets(APITestCase):
+    def setUp(self):
+        tests_setup_function(self)
 
-    def test_statstics(self):
-        user1 = User.objects.create(date_joined='2021-05-28T13:30:50.884397Z', username='newusername2', email='newusername2@g.com',
-                                    password='password', is_email_verified=True, is_role_verified=True, is_staff=True, is_superuser=True)
-        user3 = User.objects.create(username='newusername3', email='newusername3@g.com',
-                                    password='password', is_email_verified=True, is_role_verified=True, is_staff=True)
-        if (not User.objects.filter(username='newusername').exists()):
-            user = User.objects.create(username='newusername', email='newusername@g.com',
-                                       password='password', is_email_verified=True, is_role_verified=True, is_staff=True)
-        else:
-            user = User.objects.get(username='newusername')
-        client = APIClient()
-        lg_res = client.post('/users/login/',  {'username': 'newusername',
-                                                'password': 'password'}, format='json')
-
-        client.credentials(
-            HTTP_AUTHORIZATION=f'Bearer {lg_res.data["access"]}')
-        res = client.get('/statistics/?time_frame=day&target=id')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
+    def test_timesheet_register_patients_data(self):
         assert ChangeTrack.objects.all().count() == 0
-        patient_res = client.post('/patient/', {
+        patient_res = self.client.post('/patient/', {
             "prescriptions": "",
             "blood_pressure": "120/80",
             "created_by": 1,
@@ -52,26 +36,25 @@ class TestTimeSheets(APITestCase):
         )
         trackes = ChangeTrack.objects.all().count()
         assert trackes > 0
-
-        patient_res = client .put(
+        patient_res = self.client.put(
             '/patient/1/',  {'blood_pressure': '130/85'}, format='json')
         self.assertEqual(ChangeTrack.objects.all().count(), trackes+1)
 
-        patient_res = client .put(
+        patient_res = self.client.put(
             '/patient/1/',  {'blood_pressure': '110/80'}, format='json')
         assert ChangeTrack.objects.all().count() == trackes+2
 
-        patient_res = client .put(
+        patient_res = self.client.put(
             '/patient/1/',  {'blood_pressure': '120/80'}, format='json')
         assert ChangeTrack.objects.all().count() == trackes+3
 
-        res = client.get('/statistics/?time_frame=day&target=id')
+        res = self.client.get('/statistics/?time_frame=day&target=id')
         # print('======================')
         # TODO print(res.data)
         # print('======================')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        patient_res = client.post('/patient/', {
+        patient_res = self.client.post('/patient/', {
             "prescriptions": "",
             "blood_pressure": "999999/0000",
             "created_by": 1,
@@ -82,12 +65,27 @@ class TestTimeSheets(APITestCase):
         self.assertEqual(ChangeTrack.objects.all().count(), trackes+3+10)
         self.assertEqual(patient_res.status_code, status.HTTP_201_CREATED)
 
-        res = client.get(
+        res = self.client.get(
             '/statistics/?field_target=blood_pressure&object_id=1&time_frame=minute&target=field_value&cal=max')
         assert '130' in str(res.data)
+        assert not '999999' in str(res.data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        res = client.get(
+        res = self.client.get(
             '/statistics/?field_target=blood_pressure&object_id=2&time_frame=minute&target=field_value&cal=max')
+        assert not '130' in str(res.data)
         assert '999999' in str(res.data)
+        # print('======================')
+        # print(res.data)
+        # print('======================')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        res = self.client.get(
+            '/statistics/?id__lt=3&fields=id')
+        print('res test debug======================')
+        # # TODO why this return all data?
+        # Note it in urls.py:68 it return the correct data.
+        # print(res.data)
+        # print('======================')
+        # assert '999999' in str(res.data)
+        # self.assertEqual(res.status_code, status.HTTP_200_OK)

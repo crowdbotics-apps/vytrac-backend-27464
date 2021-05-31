@@ -55,6 +55,7 @@ class DynamicSerializer(QueryFieldsMixin, serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError(
                     {'permission error': permission['message']})
+
         if(method == "PUT"):
             permission = permision_chack('change', modelname, user)
             if (permission['is_premited']):
@@ -69,11 +70,11 @@ class DynamicSerializer(QueryFieldsMixin, serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {'permission error': permission['message']})
 
-        # if(method == "POST"):
-        #     permission = permision_chack('add', modelname, user)
-        #     if (not permission['is_premited']):
-        #         raise serializers.ValidationError(
-        #             {'permission error': permission['message']})
+        if(method == "POST"):
+            permission = permision_chack('add', modelname, user)
+            if (not permission['is_premited']):
+                raise serializers.ValidationError(
+                    {'permission error': permission['message']})
 
         fields = kwargs.pop('fields', view_fields)
         read_only_fields = kwargs.pop('read_only_fields', change_fields)
@@ -83,6 +84,7 @@ class DynamicSerializer(QueryFieldsMixin, serializers.ModelSerializer):
             existing = set(self.fields)
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
+
         if read_only_fields is not change_fields:
             for f in read_only_fields:
                 try:

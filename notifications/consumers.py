@@ -1,11 +1,12 @@
-import gc
 from channels.generic.websocket import WebsocketConsumer
 import json
 from django.dispatch import receiver
 from django.db.models import signals
+from rest_framework.fields import DateTimeField
 from .models import Notifications
 from . import serializers
 from django.db.models import Q
+import datetime
 
 
 def return_notifcations(Notifications, user):
@@ -58,6 +59,13 @@ class Alerts(WebsocketConsumer):
 
         if(len(errors) == 0):
             notifcation.update(is_seen=True)
+            # TODO response_time = notifcation.date_created - datetime.datetime.now()
+            # print('======================')
+            # print(response_time)
+            # print('======================')
+            notifcation.save()
+            notifcation.response_time = DateTimeField.timedelta(
+                days=20, hours=10)
             serializer = serializers.ItemsSer(
                 return_notifcations(Notifications, user), many=True)
             x = json.dumps({'message': serializer.data})

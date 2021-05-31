@@ -1,4 +1,5 @@
 
+from notifications.models import Notifications
 from django.db.models.fields import related
 from django.db.models.fields.related import OneToOneField
 from safedelete.models import SafeDeleteModel, NO_DELETE
@@ -30,6 +31,13 @@ class ChangeTrack(SafeDeleteModel):
     object_id = models.IntegerField(max_length=50, blank=True, null=True)
     field_target = models.CharField(max_length=50, blank=True)
     field_value = models.CharField(max_length=50, blank=True)
+
+
+# @receiver(signals.pre_save, sender=Notifications)
+# def __init__(instance, update_fields, sender, *args, **kwargs):
+    #    TODO if Notifications.is_seen !=instance.is_seen:
+    #         ChangeTrack.objects.create(action_type='changed', model_target=str(
+    #                         'Profile'), field_value=str(Notifications.response_time), field_target='response_time', object_id=instance.id)
 
 
 @receiver(signals.pre_save, sender=Profile)

@@ -1,3 +1,4 @@
+from MyFunctions import get_permission_id
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APIRequestFactory
@@ -9,10 +10,11 @@ from rest_framework.test import APIRequestFactory
 
 
 class AuthTestings(APITestCase):
-    register_data = {'email': 'newusername@g.com', 'username': 'newusername',
-                     'password': 'password', 'password2': 'password', }
-    login_data = {'username': 'newusername',
-                  'password': 'password'}
+    def setUp(self):
+        self.register_data = {'email': 'newusername@g.com', 'username': 'newusername',
+                              'password': 'password', 'password2': 'password', }
+        self.login_data = {'username': 'newusername',
+                           'password': 'password'}
 
     register_url = reverse('register')
     login_url = reverse('login')
@@ -74,14 +76,11 @@ class AuthTestings(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(resp.data['permission error'],
                          ', You are not permitted to view user')
-# TODO delte data and migrations then test retur one field
-        # u.user_permissions.add(25)
-        # u.save()
-        # resp = client.get('/users/')
-        # print('======================')
-        # print(resp.data)
-        # print('======================')
-        # assert len(resp.data) == 1
+
+        User.objects.get(username='newusername').user_permissions.add(
+            get_permission_id('Can view phone number'))
+        resp = client.get('/users/')
+        # assert len(resp.data[0]) == 1 #TODO
 
         u.user_permissions.add(24)
         u.save()

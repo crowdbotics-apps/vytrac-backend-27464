@@ -39,7 +39,6 @@ def permision_chack(action, modelname, user):
 
         if (len(parsed_fields) > 0):
             fields = parsed_fields
-
         if (required_permission in user_permissions):
             fields = None
 
@@ -52,12 +51,13 @@ def permision_chack(action, modelname, user):
             message += ', please waite staff to verify your role'
         if (not user.is_email_verified):
             message += ', please verfy your email'
+
         return {'is_premited': is_allowed, 'message': message, 'fields': fields}
     except:
         return {'is_premited': False, 'message': 'you are not authenticated'}
+
+
 # get_permission_id
-
-
 def get_permission_id(name):
     perm_tuple = [(x.id, x.name)
                   for x in Permission.objects.all()]
