@@ -1,4 +1,3 @@
-import pytest
 from tests_credentials import tests_setup_function
 from MyFunctions import get_permission_id
 from notifications.consumers import Alerts

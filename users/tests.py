@@ -81,7 +81,8 @@ class AuthTestings(APITestCase):
             get_permission_id('Can view phone number'))
         resp = client.get('/users/')
         # assert len(resp.data[0]) == 1 #TODO
-
+        u.is_superuser = False
+        u.is_staff = False
         u.user_permissions.add(24)
         u.save()
         resp = client.get('/users/')
@@ -94,3 +95,4 @@ class AuthTestings(APITestCase):
         u.save()
         resp = client.get('/users/')
         assert len(resp.data[0]) >= 20
+        # res = client.get('/users/?fields=is_role_verified,date_joined')

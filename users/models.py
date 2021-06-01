@@ -91,7 +91,7 @@ class User(AbstractUser, PermissionsMixin):
         Availablity, related_name='date_avalable', blank=True)
     settings = models.ManyToManyField(
         Settings, related_name='who_can_see_comment', blank=True)
-
+    age = models.CharField(max_length=50, blank=True)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', ]
 

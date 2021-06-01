@@ -1,8 +1,19 @@
 
+import json
 from users.models import User
 from rest_framework.test import APIClient
 
 from rest_framework import status
+from termcolor import colored
+
+
+def Debuging(text, color='yellow'):
+    try:
+        value = json.dumps(text, indent=4)
+    except:
+        value = text
+
+    print(colored(value, color))
 
 
 def tests_setup_function(self):
@@ -26,6 +37,6 @@ def tests_setup_function(self):
     self.token = lg_res.data["access"]
     client.credentials(
         HTTP_AUTHORIZATION=f'Bearer {self.token}')
-    res = client.get('/statistics/?time_frame=day&target=id')
+    res = client.get('/statistics/?resample=day&target=id')
     self.client = client
     self.assertEqual(res.status_code, status.HTTP_200_OK)

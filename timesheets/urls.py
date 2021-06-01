@@ -1,8 +1,16 @@
+from django.db.models.query_utils import DeferredAttribute
+from tests_credentials import Debuging
+from django_filters.rest_framework.backends import DjangoFilterBackend
+import pandas as pd
 from re import DEBUG
+from typing import SupportsAbs
+from django.db.models.lookups import Contains
 from django.urls import path
 from drf_queryfields import QueryFieldsMixin
 from rest_framework import serializers
 from .models import ChangeTrack
+from itertools import groupby
+from operator import itemgetter
 
 
 from Myclasses import DynamicSerializer, ItemView, ItemsView
@@ -35,46 +43,37 @@ class StatisticSer(DynamicSerializer):
         fields = '__all__'
 
 
+lookups = [
+    'gt', 'gte', 'lte', 'exact', 'lt']
+
+
 class StatsticsView(ItemsView):
-    def get(self, request, *args, **kwargs):
-        getter = request.GET
-        data = MyModel.objects.all()
-
-        query = Q()
-        fields = []
-        for field in MyModel._meta.fields:
-            for s in list(getter):
-                if field.name in s:
-                    fields.append(s)
-
-        for field in fields:
-            q = Q(**{"%s" % field: getter.get(field)})
-            if (getter.get(field) != None):
-                query &= q
-        data = data.filter(query)
-        # print('xxx======================')
-        # print(list(data))
-        # print(query)
-        # print('======================')
-        if (getter.get('time_frame') != None):
-            try:
-
-                time_frame = getter.get('time_frame').title()
-                target = getter.get('target').lower()
-                calttr = getter.get('cal').lower()
-
-                Trunc = getattr(functions, 'Trunc'+time_frame)
-                cal = getattr(CAL, calttr.title())
-                # Avg, F, RowRange, Window, Max, Min
-                data = data.annotate(time=Trunc('date_created')).values(
-                    'time').annotate(avg=cal(target))
-                return Response(list(data))
-            except:
-                pass
-        return self.list(data)
-
     queryset = MyModel.objects.all()
     serializer_class = StatisticSer
+    # TODO how to add all lookup
+    filterset_fields = {'object_id': lookups,
+                        'field_value': lookups, 'field_target': lookups}
+
+    def get(self, request, *args, **kwargs):
+        getter = request.GET
+        data = request.data
+        data = self.list(data, args, kwargs).data
+
+        if (getter.get('resample') != None and getter.get('cal') != None):
+            resample = getter.get('resample').title()
+            target = getter.get('target').lower()
+            calttr = getter.get('cal').lower()
+
+            df = pd.DataFrame(data)
+
+            df['date_created'] = pd.to_datetime(df['date_created'])
+
+            df = df.groupby('field_target').apply(
+                lambda x: getattr(x.set_index('date_created').resample(resample), calttr)())
+
+            return Response(df)
+
+        return Response(data)
 
 
 class StatsticView(ItemView):

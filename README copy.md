@@ -57,15 +57,15 @@ The end points that are not documeted in swagger.
 
   - **note**: Usally, you don't need **POST** here because statstics autmaiclly created when you change the patient profiel data. for example if you change the blood prusser that will be registered in form of timesheet data.
 
-  - quick example "statistics/?field_target=blood_pressure&object_id=9&time_frame=minute&target=field_value&cal=max/"
+  - quick example "statistics/?field_target=blood_pressure&object_id=9&resample=minute&target=field_value&cal=max/"
   - Example1 to get the change of somons blood pruser do this
 
     - First filter data like "?field_target=blood_pressure"
     - Then select the fields that you need "&fields=field_value,date_created"
     - Then select the patien or the object that you need to do statstics on "&object_id=9"
-    - Then do this "&time_frame=minute&target=field_value&cal=avg"
+    - Then do this "&resample=minute&target=field_value&cal=avg"
       - cal = avg, min, max...
-      - time_frame= minute/day/minuth/year
+      - resample= minute/day/minuth/year
 
   - Example2 to get the change the number of patient thro over time 🚧
 
