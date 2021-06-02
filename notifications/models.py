@@ -1,3 +1,5 @@
+import datetime
+from Functions.debuging import Debugging
 from django.dispatch import receiver
 from django.db.models import signals
 from django.contrib.auth.models import Group
@@ -9,10 +11,11 @@ from calendars.models import Date
 
 class Notifications(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, null=True)
+
     title = models.CharField(max_length=30, null=True, blank=True)
     is_seen = models.BooleanField(default=False)
     description = models.TextField(max_length=999, blank=True, null=True)
-    deadline = models.DateTimeField(null=True)
+    deadline = models.DateTimeField(null=True, blank=True)
     response_time = models.DurationField(null=True, blank=True)
     RCHOICES = (
         ('low', 'low'),
@@ -34,15 +37,27 @@ def __init__(instance, sender, signal, *args, **kwargs):
     new_notifcations.target_users.add(User.objects.get(id=1))
 
 
-# TODO# @receiver(signals.pre_save, sender=Notifications)
-# def __init__(instance, sender, signal, *args, **kwargs):
-#     new_value = Notifications.objects.get(id=instance.id)
+@receiver(signals.pre_save, sender=Notifications)
+def __init__(instance, update_fields, sender, *args, **kwargs):
+    date_created = instance.date_created
+    now = datetime.datetime.now().replace(tzinfo=None)
+    # response_time = (now - date_created)  # TODO  TypeError: unsupported operand type(s) for -: 'datetime.datetime' and 'NoneType'
+    try:
+        notifcation = Notifications.objects.get(id=instance.id)
+        if (instance.is_seen == True and notifcation.is_seen == False):
+            # notifcation.response_time = response_time # TODO
+            notifcation.save()
+    except:
+        pass
+
+    # new_value = Notifications.objects.get(id=instance.id)
+    # pass
+    # TODO
     # if (instance.is_seen == False and new_value.is_seen == True):
-    #     new_value.response_time = DateTimeField.timedelta(
-    #         days=20, hours=10)
+    # new_value.response_time = DateTimeField.timedelta(
+    #     days=20, hours=10)
 
-
-# TODO # new_notifcations.target_users.add(instance.users)
+    # TODO # new_notifcations.target_users.add(instance.users)
     # TODO A3
     # sender
     # if Profile.care_taker change => Notifications.target=Profile.care_taker

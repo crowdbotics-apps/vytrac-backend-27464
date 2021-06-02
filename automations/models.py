@@ -1,7 +1,33 @@
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.auth.models import Permission
 
-# Create your models here.
 
+def get_actions(name):
+    actions = {}
+    for x in Permission.objects.all():
+        # Debugging(x.name)
+        actions['action_name'] = 'action name'
+        # Debugging(x.codename)
+    return actions
+
+
+class Automation(models.Model):
+    tag_name = models.SlugField()
+    if_item = models.CharField(choices=(
+        ('user.change_username', 'user | change username'),), max_length=50, blank=True)
+    if_ction = models.CharField(choices=(
+        ('user.change_username', 'user | change username'),), max_length=50, blank=True)
+    then_item = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    then_action = models.CharField(choices=(
+        ('user.change_username', 'user | change username'),), max_length=50, blank=True)
+    then_set_value = models.CharField(choices=(
+        ('user.change_username', 'user | change username'),), max_length=50, blank=True)
+#     tagged_object = GenericForeignKey('content_type', 'object_id')
+
+    def __str__(self):
+        return self.tag_name
 
 # @receiver(signals.post_save)
 # def __init__(instance, sender, signal, *args, **kwargs):
