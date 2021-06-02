@@ -1,5 +1,5 @@
 import datetime
-from Myclasses import Rec
+from Functions.Myclasses import Rec
 import inspect
 from django.db import models
 from safedelete.models import SafeDeleteModel, NO_DELETE

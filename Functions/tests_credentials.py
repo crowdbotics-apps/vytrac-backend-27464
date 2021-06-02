@@ -1,19 +1,8 @@
 
-import json
 from users.models import User
 from rest_framework.test import APIClient
 
 from rest_framework import status
-from termcolor import colored
-
-
-def Debuging(text, color='yellow'):
-    try:
-        value = json.dumps(text, indent=4)
-    except:
-        value = text
-
-    print(colored(value, color))
 
 
 def tests_setup_function(self):

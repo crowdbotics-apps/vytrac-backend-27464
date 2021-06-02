@@ -1,5 +1,5 @@
 from django.urls import path
-from Myclasses import DynamicSerializer, ItemView, ItemsView
+from Functions.Myclasses import DynamicSerializer, ItemView, ItemsView
 from django.urls import path
 from . import models
 MyModel = models.Tasks

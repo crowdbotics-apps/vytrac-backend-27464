@@ -55,8 +55,9 @@ INSTALLED_APPS = [
     'safedelete',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework_swagger',
-
+    'address',
 ]
+GOOGLE_API_KEY = 'AIzaSyD--your-google-maps-key-SjQBE'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

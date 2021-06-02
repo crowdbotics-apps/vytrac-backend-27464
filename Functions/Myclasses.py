@@ -1,12 +1,11 @@
-
+import inspect
+from Functions.debuging import Debugging
 from django.core.exceptions import ValidationError
-from django.db import models
 from multiselectfield import MultiSelectField
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, mixins
 from rest_framework.response import Response
-from MyFunctions import permision_chack
 from rest_framework import status
 from django.db.models import Q, expressions
 # from users.models import User
@@ -23,6 +22,8 @@ from django.db.models import Q
 # from users.models import User
 from drf_queryfields import QueryFieldsMixin
 
+from Functions.MyFunctions import permision_chack
+
 
 def convert_to_list(django_boject):
     flat_object = django_boject.values_list('codename', flat=True)
@@ -31,27 +32,29 @@ def convert_to_list(django_boject):
 
 class DynamicSerializer(QueryFieldsMixin, serializers.ModelSerializer):
     def __init__(self, * args, **kwargs):
+        super(DynamicSerializer, self).__init__(*args, **kwargs)
+
         modelname = self.Meta.model.__name__.lower()
         method = ''
         try:
             method = kwargs['context']['request'].method
             user = kwargs['context']['request']._user
-            permissions = convert_to_list(user.user_permissions.all())
-            for group in user.groups.all():
-                groups_permissions = convert_to_list(group.permissions.all())
-                permissions += list(groups_permissions)
-            permissions = list(filter(lambda x: 'field' in x, permissions))
+            # permissions = convert_to_list(user.user_permissions.all())
+            # for group in user.groups.all():
+            #     groups_permissions = convert_to_list(group.permissions.all())
+            #     permissions += list(groups_permissions)
+            # permissions = list(filter(lambda x: 'field' in x, permissions))
         except:
             pass
 
         view_fields = None
         change_fields = None
 
-        super(DynamicSerializer, self).__init__(*args, **kwargs)
         if(method == "GET"):
             permission = permision_chack('view', modelname, user)
             if (permission['is_premited']):
-                view_fields = permission['fields']
+                if not permission['fields'] == None:
+                    view_fields = permission['fields']
             else:
                 raise serializers.ValidationError(
                     {'permission error': permission['message']})
@@ -79,13 +82,13 @@ class DynamicSerializer(QueryFieldsMixin, serializers.ModelSerializer):
         fields = kwargs.pop('fields', view_fields)
         read_only_fields = kwargs.pop('read_only_fields', change_fields)
 
-        if fields is not view_fields:
+        if fields is not None:
             allowed = set(fields)
             existing = set(self.fields)
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
 
-        if read_only_fields is not change_fields:
+        if read_only_fields is not None:
             for f in read_only_fields:
                 try:
                     self.fields[f].read_only = True

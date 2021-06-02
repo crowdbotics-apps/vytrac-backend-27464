@@ -1,5 +1,5 @@
-from tests_credentials import tests_setup_function
-from MyFunctions import get_permission_id
+from Functions.tests_credentials import tests_setup_function
+from Functions.MyFunctions import get_permission_id
 from notifications.consumers import Alerts
 from channels.testing import HttpCommunicator
 from notifications.models import Notifications
@@ -7,30 +7,42 @@ from django.test import TestCase
 
 import datetime
 from calendars.models import Date, DateType
-from django.contrib.auth.models import Permission
+
 from rest_framework import status
-from rest_framework.test import APIClient
-from django.urls import include, path, reverse
+
 from rest_framework.test import APITestCase
-from users.models import User
-
-from rest_framework.test import APIRequestFactory
-
-perm_tuple = [(x.id, x.name)
-              for x in Permission.objects.all()]
 
 
-class MyTests(TestCase):
-    def setUp(self):
-        tests_setup_function(self)
+# from websockets import connect
 
-    async def test_my_consumer(self):
-        communicator = HttpCommunicator(
-            Alerts, "GET", f"/alerts/?token={self.token}/")
-        # response = await communicator.get_response()
-        # print('======================')
-        # print(response)
-        # print('======================')
+from asyncio import new_event_loop
+
+
+# class MyTests():
+
+#     def test_accept_connection():
+#         async def open_connection(url):
+#             async with connect(url) as websocket:
+#                 return websocket.open
+
+#         with Alerts() as url:
+#             loop = new_event_loop()
+#             is_open = loop.run_until_complete(open_connection(url))
+#             assert is_open
+#             loop.close()
+
+# def test_ping():
+#     async def ping(url):
+#         async with connect(url) as websocket:
+#             await websocket.send("ping")
+#             return await websocket.recv()
+
+#     with run_server() as url:
+#         loop = new_event_loop()
+#         received_message = loop.run_until_complete(ping(url))
+#         assert received_message == "pong"
+#         loop.close()
+
 # response["headers"]
 # self.assertEqual(response["body"], b"test response")
 # self.assertEqual(response["status"], 200)

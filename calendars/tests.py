@@ -1,6 +1,6 @@
 import datetime
 from re import DEBUG
-from tests_credentials import tests_setup_function
+from Functions.tests_credentials import tests_setup_function
 from calendars import models
 from calendars.models import Date, DateType
 from django.contrib.auth.models import Group

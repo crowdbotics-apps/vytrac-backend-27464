@@ -1,8 +1,10 @@
+
+from address.models import AddressField
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db import models
 from safedelete.models import SafeDeleteModel, NO_DELETE
-from users.models import User
+from users.models import PHONE_NUMBER_REGEX, User
 
 
 class Symptoms(SafeDeleteModel):
@@ -42,8 +44,117 @@ class Roster(SafeDeleteModel):
     serveces = models.CharField(choices=rosters, max_length=50, blank=True)
 
 
+class EmergencyContact(models.Model):
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    phone_number = models.TextField(
+        max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
+    second_phone_number = models.TextField(
+        max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
+
+    RCHOICES = (
+        ('family', 'family'),
+        ('friend', 'friend'),
+        ('cousin', 'cousin'),
+        ('siblings', 'siblings'),
+        ('parent', 'parent'),
+        ('partner', 'partner'),
+
+    )
+    is_done = models.BooleanField(default=False)
+    relationship = models.CharField(
+        max_length=50, choices=RCHOICES, blank=True)
+
+
+class Insurance(SafeDeleteModel):
+    primary = models.CharField(max_length=50, blank=True)
+    secondary = models.CharField(max_length=50, blank=True)
+    subscriber = models.CharField(max_length=50, blank=True)
+    number = models.PositiveBigIntegerField(max_length=50, blank=True)
+    group_number = models.PositiveBigIntegerField(max_length=50, blank=True)
+
+
+class PrimaryCarePhysician(SafeDeleteModel):
+    full_name = models.CharField(max_length=50, blank=True)
+    phone_number = models.TextField(
+        max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
+    address = AddressField(related_name='PCP+', blank=True, null=True)
+    office_phone = models.TextField(
+        max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
+    office_fax = models.CharField(max_length=50, blank=True)
+
+
+class Language(models.Model):
+    name = models.CharField(max_length=50, blank=True)
+
+
+class Ethnicity(models.Model):
+    name = models.CharField(max_length=50, blank=True)
+
+
+class Race(models.Model):
+    name = models.CharField(max_length=50, blank=True)
+
+
+class Religion(models.Model):
+    name = models.CharField(max_length=50, blank=True)
+
+
 class Profile(SafeDeleteModel):
+
+    native_langauge = models.OneToOneField(
+        Language,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        primary_key=False,
+    )
+
+    other_langauge = models.ManyToManyField(
+        Language, related_name='Profileother_langauge', blank=True)
+    gender_identity = models.CharField(max_length=50, blank=True)
+    marital_status = models.CharField(max_length=50, blank=True)
+    race = models.OneToOneField(
+        Race,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        primary_key=False,
+    )
+    ethnicity = models.OneToOneField(
+        Ethnicity,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        primary_key=False,
+    )
+    religion = models.OneToOneField(
+        Religion,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        primary_key=False,
+    )
+
+    insurance = models.OneToOneField(
+        Insurance,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        primary_key=False,
+    )
+    primary_care_physician = models.OneToOneField(
+        PrimaryCarePhysician,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        primary_key=False,
+    )
+    emergency_contact = models.ManyToManyField(
+        EmergencyContact, related_name='Profile_emergency_contact', blank=True)
     # plan = #TODO
+
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     created_by = models.ForeignKey(
         User, related_name='Patient_Profile_created_by', on_delete=models.DO_NOTHING, null=True,)
@@ -69,10 +180,11 @@ class Profile(SafeDeleteModel):
 
     class Meta:
         permissions = (
-            ('view_patientprofile.prescriptions_field', "Can view prescriptions"),
-            ('view_patientprofile.symptoms_field', "Can view symptoms"),
-            ('change_patientprofile.prescriptions_field', "Can change prescriptions"),
-            ('change_patientprofile.symptoms_field', "Can change symptoms"),
+
+            ('view_Profile.prescriptions_field', "Can view prescriptions"),
+            ('view_Profile.symptoms_field', "Can view symptoms"),
+            ('change_Profile.prescriptions_field', "Can change prescriptions"),
+            ('change_Profile.symptoms_field', "Can change symptoms"),
         )
 
 # TODO make view for this

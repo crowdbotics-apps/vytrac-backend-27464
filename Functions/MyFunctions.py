@@ -59,10 +59,8 @@ def permision_chack(action, modelname, user):
 
 # get_permission_id
 def get_permission_id(name):
-    perm_tuple = [(x.id, x.name)
-                  for x in Permission.objects.all()]
-
-    perm_tuple = dict([i[::-1] for i in perm_tuple])
-
-    entity_type_index = perm_tuple[name]
-    return entity_type_index
+    for x in Permission.objects.all():
+        # Debugging(x.name)
+        # Debugging(x.codename)
+        if name == x.name:
+            return x.id

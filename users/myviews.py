@@ -1,26 +1,15 @@
-from Myclasses import ItemView, ItemsView
-from warnings import WarningMessage
+from Functions.Myclasses import ItemView, ItemsView
 from rest_framework import generics
-from rest_framework import mixins
-from MyFunctions import permision_chack
-from django.contrib.auth.models import Permission
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.models import Group
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.filters import SearchFilter, OrderingFilter
-from django.db.models import Q, fields
-import re
-from rest_framework.generics import ListAPIView
+from Functions.MyFunctions import permision_chack
+
 
 from django.http.response import HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode
-from rest_framework import generics, mixins, permissions
+from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.views.generic.list import ListView
-from django.shortcuts import render
 from rest_framework import status
 ##
 from users import serializers
@@ -36,7 +25,7 @@ from drf_yasg import openapi
 import jwt
 from django.http import HttpResponsePermanentRedirect
 import os
-from django.utils.encoding import DjangoUnicodeDecodeError, smart_bytes
+from django.utils.encoding import smart_bytes
 
 
 class CustomRedirect(HttpResponsePermanentRedirect):

@@ -1,3 +1,5 @@
+import sys
+from Functions.debuging import Debugging
 from channels.generic.websocket import WebsocketConsumer
 import json
 from django.dispatch import receiver
@@ -10,10 +12,11 @@ import datetime
 
 
 def return_notifcations(Notifications, user):
-    notifications = Notifications.objects.filter(target_users__in=[user.id])
-    if (user.is_staff or user.is_superuser):
-        notifications = Notifications.objects.all()
-    return notifications
+    # notifications = Notifications.objects.filter(
+    #     Q(target_users__in=[user.id]) or Q(target_groups__in=user.groups.all()))
+    # if (user.is_staff or user.is_superuser):
+    #     notifications = Notifications.objects.all()
+    return Notifications.objects.all()
 
 
 class Alerts(WebsocketConsumer):
@@ -27,49 +30,38 @@ class Alerts(WebsocketConsumer):
         #     self.room_group_name,
         #     self.channel_name
         # )
-        print('disconnect======================')
+        Debugging('disconnect====================== ', color='red')
         print(close_code)
         print(self)
-        print('======================')
 
     def receive(self, text_data):
+        Debugging('receive======================', color='green')
+        errors = []
+
         user = self.scope["user"]
         data = json.loads(text_data)
-        print('receive======================')
-        errors = []
+
         notifcation = return_notifcations(
-            Notifications, user).filter(id=data['id'])
+            Notifications, user).get(id=data['id'])
 
-        if('is_seen' not in data):
+        fields = [x.name for x in notifcation._meta.fields]
+        if data['field'] not in fields:
             errors.append(
-                {'field name error': 'One of field names is not recognized.'})
+                {'Field name error.': 'The field you entered is not exist.'})
 
-        if (not notifcation.exists()):
-            errors.append(
-                {'permission error': 'You are not permisted to update this alert.'})
         try:
-            if (notifcation.filter(is_seen=True).exists() and data['is_seen'].title() == 'True'):
-                errors.append({'value error': 'value already seted to true'})
-        except:
-            pass
-
-        if(len(errors) >= 0):
-            message = json.dumps({'error': errors})
-            self.send(message)
-
-        if(len(errors) == 0):
-            notifcation.update(is_seen=True)
-            # TODO response_time = notifcation.date_created - datetime.datetime.now()
-            # print('======================')
-            # print(response_time)
-            # print('======================')
+            setattr(notifcation, data['field'], data['value'].title())
             notifcation.save()
-            notifcation.response_time = DateTimeField.timedelta(
-                days=20, hours=10)
+        except Exception as e:
+            errors.append(str(e))
+
+        if (len(errors) == 0):
             serializer = serializers.ItemsSer(
                 return_notifcations(Notifications, user), many=True)
             x = json.dumps({'message': serializer.data})
             self.send(x)
+        else:
+            self.send(json.dumps({'errors': errors}))
 
     def connect(self):
         # TODO return notifcations pased on user settings

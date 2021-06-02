@@ -1,13 +1,10 @@
 from rest_framework import fields, serializers
 import datetime
 from dateutil import parser
-from Myclasses import DynamicSerializer, ItemView, ItemsView, REC
+from Functions.Myclasses import DynamicSerializer, ItemView, ItemsView, REC
 from django.urls import path
 from . import models
-from rest_framework import response, serializers
-from drf_queryfields import QueryFieldsMixin
-from users.models import User
-import pytz
+from rest_framework import serializers
 
 MyModel = models.Date
 

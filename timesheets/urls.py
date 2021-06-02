@@ -1,5 +1,7 @@
+import inspect
+from Functions.fields_lookups import fields_lookups
+from Functions.debuging import Debugging
 from django.db.models.query_utils import DeferredAttribute
-from tests_credentials import Debuging
 from django_filters.rest_framework.backends import DjangoFilterBackend
 import pandas as pd
 from re import DEBUG
@@ -13,13 +15,13 @@ from itertools import groupby
 from operator import itemgetter
 
 
-from Myclasses import DynamicSerializer, ItemView, ItemsView
+from Functions.Myclasses import DynamicSerializer, ItemView, ItemsView
 from django.urls import path
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, mixins, permissions
 from rest_framework.response import Response
-from MyFunctions import permision_chack
+from Functions.MyFunctions import permision_chack
 from django.shortcuts import render
 from rest_framework import status
 from django.db.models import Q
@@ -43,16 +45,10 @@ class StatisticSer(DynamicSerializer):
         fields = '__all__'
 
 
-lookups = [
-    'gt', 'gte', 'lte', 'exact', 'lt']
-
-
 class StatsticsView(ItemsView):
     queryset = MyModel.objects.all()
     serializer_class = StatisticSer
-    # TODO how to add all lookup
-    filterset_fields = {'object_id': lookups,
-                        'field_value': lookups, 'field_target': lookups}
+    filterset_fields = fields_lookups(MyModel)
 
     def get(self, request, *args, **kwargs):
         getter = request.GET

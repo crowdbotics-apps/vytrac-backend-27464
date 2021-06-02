@@ -1,4 +1,4 @@
-from Myclasses import DynamicSerializer, ItemView, ItemsView
+from Functions.Myclasses import DynamicSerializer, ItemView, ItemsView
 from .. import models
 
 MyModel = models.Settings

@@ -1,9 +1,8 @@
-from Myclasses import DynamicSerializer
+from Functions.Myclasses import DynamicSerializer
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import force_str
 from rest_framework.exceptions import AuthenticationFailed
-from drf_queryfields import QueryFieldsMixin
 
 from rest_framework.serializers import (
     ModelSerializer,

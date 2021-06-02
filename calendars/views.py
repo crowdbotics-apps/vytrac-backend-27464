@@ -2,7 +2,7 @@
 # from warnings import WarningMessage
 # from rest_framework import generics
 # from rest_framework import mixins
-# from MyFunctions import permision_chack
+# from Functions.MyFunctions import permision_chack
 # from django.contrib.auth.models import Permission
 # from django.contrib.auth.mixins import PermissionRequiredMixin
 # from django.contrib.auth.models import Group

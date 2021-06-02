@@ -1,6 +1,6 @@
 import datetime
 from re import DEBUG
-from tests_credentials import Debuging, tests_setup_function
+from Functions.tests_credentials import tests_setup_function
 from timesheets.models import ChangeTrack
 from manage_patients.models import Profile
 from django.contrib.auth.models import Permission
@@ -89,7 +89,8 @@ class TestTimeSheets(APITestCase):
             "booked_servces": [],
             "symptoms": []}, format='json')
         assert patient_res.data['id'] == 2
-        self.assertEqual(ChangeTrack.objects.all().count(), trackes+3+10)
+        self.assertGreaterEqual(
+            ChangeTrack.objects.all().count(), trackes+20)
         self.assertEqual(patient_res.status_code, status.HTTP_201_CREATED)
 
     # def test_fields(self):

@@ -1,5 +1,7 @@
 
-from Myclasses import Rec
+from Functions.Myclasses import Rec
+from Functions.make_fields_permissions import make_fields_permissions
+from address.models import AddressField
 from multiselectfield import MultiSelectField
 from django.db.models.fields.related import ManyToManyField
 from safedelete.models import (
@@ -66,12 +68,21 @@ class Settings(SafeDeleteModel):
     see_all = models.BooleanField(default=False)
 
 
+class Sex(models.Model):
+    name = models.CharField(max_length=50, blank=True)
+
+
 class User(AbstractUser, PermissionsMixin):
     username = models.CharField(
         max_length=30, unique=True, validators=[USERNAME])
     email = models.EmailField(max_length=250, unique=True)
+    # TODO secon_email  unique=True
+    secon_email = models.EmailField(max_length=250, blank=True)
+
+    sex = models.ManyToManyField(Sex, related_name='user_sex', blank=True)
     first_name = models.CharField(max_length=30, blank=True, null=True)
     last_name = models.CharField(max_length=30, blank=True, null=True)
+    middle_name = models.CharField(max_length=30, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -85,6 +96,9 @@ class User(AbstractUser, PermissionsMixin):
     about_me = models.TextField(max_length=500, blank=True, null=True)
     phone_number = models.TextField(
         max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
+
+    second_phone_number = models.TextField(
+        max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
     imageUrl = models.CharField(max_length=900, blank=True, null=True)
     # TODO if not avablae then you can't create apoentment
     date_avalable = models.ManyToManyField(
@@ -92,11 +106,10 @@ class User(AbstractUser, PermissionsMixin):
     settings = models.ManyToManyField(
         Settings, related_name='who_can_see_comment', blank=True)
     age = models.CharField(max_length=50, blank=True)
+    address = AddressField(related_name='+', blank=True, null=True)
+
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', ]
 
     class Meta:
-        permissions = (
-            ('view_user.phone_number_field', "Can view phone number"),
-            ('change_user.phone_number_field', "Can change phone number"),
-        )
+        permissions = make_fields_permissions(User)
