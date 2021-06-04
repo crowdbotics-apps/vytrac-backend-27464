@@ -24,8 +24,8 @@ class AuthTestings(APITestCase):
         group = Group.objects.create(name='provider')
         group.permissions.add(get_permission_id('Can view user'))
 
-        # group2 = Group.objects.create(name='enconter')
-        # group2.permissions.add(get_permission_id('Can view phone number'))
+        group2 = Group.objects.create(name='enconter')
+        group2.permissions.add(get_permission_id('Can view phone number'))
 
         group3 = Group.objects.create(name='doctor')
         group3.permissions.add(get_permission_id('Can change user'))
@@ -80,12 +80,12 @@ class AuthTestings(APITestCase):
         self.user.save()
         res = self.client.get('/patient/')
 
-      #   enconter = Group.objects.get(name='enconter')
-      #   self.user.groups.add(enconter)
-      #   self.user.save()
-      #   resp = self.client.get('/users/')
-      #   Debugging(resp.data, color='green')
-      #   self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # enconter = Group.objects.get(name='enconter')
+        # self.user.groups.add(enconter)
+        # self.user.save()
+        # resp = self.client.get('/users/')
+        # Debugging(resp.data, color='green')
+        # self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_if_can_change_then_can_view(self):
         provider = Group.objects.get(name='doctor')

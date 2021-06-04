@@ -73,8 +73,8 @@ class AuthTestings(APITestCase):
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
         resp = client.get('/users/')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(resp.data['permission error'],
-                         ', You are not permitted to view user')
+        assert 'You are not permitted to view user' in str(
+            resp.data['permission error'])
         u.is_superuser = False
         u.is_staff = False
         u.save()
@@ -91,7 +91,7 @@ class AuthTestings(APITestCase):
         u.save()
 
         resp = client.get('/users/')
-        # assert len(resp.data[0]) == 1
+        assert len(resp.data[0]) == 1
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
         u.user_permissions.add(
@@ -99,8 +99,8 @@ class AuthTestings(APITestCase):
         u.save()
 
         resp = client.get('/users/')
-        # assert len(resp.data[0]) == 2
-        Debugging(resp.data)
+        assert len(resp.data[0]) == 2
+
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
         u.user_permissions.add(
@@ -118,4 +118,4 @@ class AuthTestings(APITestCase):
         resp = client.get('/users/')
         assert len(resp.data[0]) >= 20
 
-        # res = client.get('/users/?fields=is_role_verified,date_joined')
+        res = client.get('/users/?fields=is_role_verified,date_joined')

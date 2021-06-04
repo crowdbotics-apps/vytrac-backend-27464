@@ -3,8 +3,10 @@ import datetime
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from Functions.debuging import Debugging
 from Functions.tests_credentials import tests_setup_function
 from calendars.models import DateType
+from .models import Date
 
 login_data = {'username': 'newusername',
               'password': 'password'}
@@ -16,23 +18,23 @@ class CalinderTests(APITestCase):
         time_format = '%H:%M:%S'
         d = datetime.datetime
         self.now = d.now().strftime(time_format)
-        after_1_h = d.now()+datetime.timedelta(hours=1)
-        after_5_h = d.now()+datetime.timedelta(hours=5)
+        after_1_h = d.now() + datetime.timedelta(hours=1)
+        after_5_h = d.now() + datetime.timedelta(hours=5)
         self.after_1_h = after_1_h.strftime(time_format)
         self.after_5_h = after_5_h.strftime(time_format)
 
-        after_2_h = d.now()+datetime.timedelta(hours=2)
-        after_3_h = d.now()+datetime.timedelta(hours=3)
+        after_2_h = d.now() + datetime.timedelta(hours=2)
+        after_3_h = d.now() + datetime.timedelta(hours=3)
         self.after_2_h = after_2_h.strftime(time_format)
         self.after_3_h = after_3_h.strftime(time_format)
 
-        after_10_h = d.now()+datetime.timedelta(hours=10)
-        after_11_h = d.now()+datetime.timedelta(hours=11)
+        after_10_h = d.now() + datetime.timedelta(hours=10)
+        after_11_h = d.now() + datetime.timedelta(hours=11)
         self.after_10_h = after_10_h.strftime(time_format)
         self.after_11_h = after_11_h.strftime(time_format)
 
-        after_1_d = d.now()+datetime.timedelta(days=1)
-        after_3_d = d.now()+datetime.timedelta(days=3)
+        after_1_d = d.now() + datetime.timedelta(days=1)
+        after_3_d = d.now() + datetime.timedelta(days=3)
 
         self.after_1_d = after_1_d.strftime(date_format)
         self.after_3_d = after_3_d.strftime(date_format)
@@ -40,8 +42,6 @@ class CalinderTests(APITestCase):
         DateType.objects.create(name='meeting')
         DateType.objects.create(name='appointment')
         tests_setup_function(self)
-        # self.user.user_permissions.add(55)
-        # self.user.save()
 
     def test_can_not_create_old_date(self):
         resp = self.client.get('/calendars/', format='json')
@@ -155,19 +155,23 @@ class CalinderTests(APITestCase):
         })
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-        # TODO create_res = self.client.post('/calendars/', {
-        #     "title": "first",
-        #     "description": "",
-        #     "start": '2021-01-28T10:30:50.884397Z',
-        #     "end": '2021-01-28T13:30:50.884397Z',
-        #     # "created_by": 1,
-        #     "date_type": 1,
-        #     "users": [1]
-        # }, format='json')
-        # assert "You can't have a meeting start or end before now." in str(
-        #     create_res.data)
-        # self.assertEqual(create_res.status_code, status.HTTP_400_BAD_REQUEST)
-        # assert len(Date.objects.all()) == 0
+        assert Date.objects.all().count() == 2
+        create_res = self.client.post('/calendars/', {
+            "title": "first",
+            'recurrence': [],
+            'created_by': 1,
+            'from_time': '00:01:0.0',
+            'to_time': '00:02:0.0',
+            "description": "",
+            "start": '2021-01-28',
+            "end": '2021-01-29',
+            # "created_by": 1,
+            "date_type": 1,
+            "users": [1]
+        }, format='json')
+        assert "You can't have a meeting start or end before today." in str(create_res.data)
+        self.assertEqual(create_res.status_code, status.HTTP_400_BAD_REQUEST)
+        assert Date.objects.all().count() == 2
 
         # TODO create_res = self.client.post('/calendars/', {
         #     "title": "first",

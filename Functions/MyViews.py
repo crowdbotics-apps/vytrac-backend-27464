@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from Functions.debuging import Debugging
+from Functions.queryset_filtering import queryset_filtering
 from users.models import User
 from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
@@ -22,23 +24,27 @@ class ItemsView(generics.ListAPIView):
     # permission_classes = [IsActive]
     # pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
-    filterset_fields = ['username', 'age', 'dates__title']
+    filterset_fields = ['username', 'age']
     search_fields = '__all__'
 
     def get(self, request, *args, **kwargs):
+        global x
         context = {'request': request, 'method': 'view'}
-        Debugging(request.GET, color='blue')
-        items = self.queryset.all()
-        serializer = self.serializer_class(items, context=context, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-        # return self.list(serializer.data)
 
+        items = self.queryset.all()
+
+        filters = queryset_filtering(self.queryset.model, request.GET)
+        serializer = self.serializer_class(
+            items.filter(Q(filters)), context=context, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    #
     def post(self, request, format=None):
         serializer = self.serializer_class(
             data=request.data, context={'method': 'add', 'request': request})
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data,  status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -12,7 +12,6 @@ from .models import ChangeTrack
 MyModel = ChangeTrack
 
 
-
 class StatisticSer(DynamicSerializer):
     class Meta:
         model = MyModel
@@ -21,25 +20,23 @@ class StatisticSer(DynamicSerializer):
 
 class StatsticsView(ItemsView):
     def get(self, request, *args, **kwargs):
-        context = {'request': request, 'method': 'view'}
-        items = self.queryset.all()
-        serializer = self.serializer_class(items, context=context, many=True)
-        data = serializer.data
-        # Debugging(data, color='green')
-
+        data = super().get(request, *args, **kwargs).data
         getter = request.GET
+        if 'cal' in getter and 'fields' in getter:
+            return Response({'error': 'You can not element fields because thy are needed for th calculations'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         if getter.get('resample') is not None and getter.get('cal') is not None:
             resample = getter.get('resample').title()
-            target = getter.get('target').lower()
             clatter = getter.get('cal').lower()
             df = pd.DataFrame(data)
             df['date_created'] = pd.to_datetime(df['date_created'])
 
             df = df.groupby('field_target').apply(
                 lambda x: getattr(x.set_index('date_created').resample(resample), clatter)())
-            return Response(df, status=status.HTTP_200_OK) #todo self.list() for filtering
-
+            # df = df.reset_index().to_dict('records')
+            # Debugging(df, color='red')
+            return Response(data, status=status.HTTP_200_OK)  # todo self.list() for filtering
         return Response(data, status=status.HTTP_200_OK)
 
     queryset = MyModel.objects.all()
