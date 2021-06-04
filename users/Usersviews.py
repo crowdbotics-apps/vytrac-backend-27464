@@ -1,40 +1,37 @@
-from Functions.Myclasses import ItemView, ItemsView
-from rest_framework import generics
-from Functions.MyFunctions import permision_chack
+import os
 
-
+import jwt
+from django.conf import settings
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.sites.shortcuts import get_current_site
+from django.http import HttpResponsePermanentRedirect
 from django.http.response import HttpResponseRedirect
 from django.template.loader import render_to_string
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.urls import reverse
+from django.utils.encoding import smart_bytes
 from django.utils.http import urlsafe_base64_encode
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, permissions
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from Functions.MyFunctions import permision_chack
+from Functions.MyViews import ItemView, ItemsView
 ##
+from Functions.fields_lookups import fields_lookups
 from users import serializers
 from .models import User
-from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import Util
-
-from django.contrib.sites.shortcuts import get_current_site
-from drf_yasg.utils import swagger_auto_schema
-from django.conf import settings
-from django.urls import reverse
-from drf_yasg import openapi
-import jwt
-from django.http import HttpResponsePermanentRedirect
-import os
-from django.utils.encoding import smart_bytes
 
 
 class CustomRedirect(HttpResponsePermanentRedirect):
-
     allowed_schemes = [os.environ.get('APP_SCHEME'), 'http', 'https']
 
 
 class RegisterView(generics.GenericAPIView):
-
     serializer_class = serializers.RegisterSerializer
 
     def post(self, request):
@@ -47,8 +44,8 @@ class RegisterView(generics.GenericAPIView):
         token = RefreshToken.for_user(user).access_token
         current_site = get_current_site(request).domain
         relativeLink = reverse('email-verify')
-        link = 'http://'+current_site+relativeLink + \
-            "?test="+'text______'+"?token="+str(token)
+        link = 'http://' + current_site + relativeLink + \
+               "?test=" + 'text______' + "?token=" + str(token)
         email_body = render_to_string(
             "verify_email.html", {'name': user.username, 'link': link})
         data = {'email_body': email_body, 'to_email': user.email,
@@ -126,8 +123,8 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             token = PasswordResetTokenGenerator().make_token(user)
             front_url = request.data.get('front_url', '')
             if (len(front_url) > 0):
-                front_url += '/'if front_url[-1] != '/'else ''
-            link = front_url+'?uidb64='+uidb64+'?token='+token
+                front_url += '/' if front_url[-1] != '/' else ''
+            link = front_url + '?uidb64=' + uidb64 + '?token=' + token
             email_body = render_to_string(
                 "reset_password.html", {'name': user.username, 'link': link})
             data = {'email_body': email_body, 'to_email': user.email,
@@ -156,7 +153,8 @@ class LogoutView(generics.GenericAPIView):
             token = RefreshToken(refresh_token)
             return Response({"message": 'Refresh token seccesfully blacklisted.'}, status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            return Response({"error": 'Refresh token alread blacklisted or invialid.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": 'Refresh token alread blacklisted or invialid.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class WhoCanView(permissions.BasePermission):
@@ -172,69 +170,6 @@ class IsActive(permissions.BasePermission):
         return permision_chack('view', 'user', request.user)['is_premited']
 
 
-# class UsersView(mixins.ListModelMixin,
-#                 mixins.CreateModelMixin,
-#                 generics.GenericAPIView):
-#     # permission_classes = [IsActive]
-#     queryset = User.objects.all()
-#     serializer_class = serializers.UsersSerializer
-#     pagination_class = PageNumberPagination
-#     filter_backends = (SearchFilter, OrderingFilter)
-#     search_fields = ('username', 'email', 'id')
-
-#     def get(self, request, *args, **kwargs):
-#         permission = permision_chack('view', 'user', request.user)
-#         if (request.user.id and not permission['is_premited']):
-#             return Response({"message": permission['message']})
-#         return self.list(request, *args, **kwargs)
-
-#     def post(self, request, *args, **kwargs):
-#         permission = permision_chack('add', 'user', request.user)
-#         if (request.user.id and not permission['is_premited']):
-#             return Response({"message": permission['message']})
-#         return self.create(request, *args, **kwargs)
-
-
-# class UserView(mixins.ListModelMixin,
-#                mixins.CreateModelMixin,
-#                generics.GenericAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = serializers.UsersSerializer
-
-#     def get_object(self, pk,):
-#         try:
-#             return User.objects.get(id=pk)
-#         except User.DoesNotExist:
-#             raise status.HTTP_404_NOT_FOUND
-
-#     def get(self, request, pk, format=None):
-#         permission = permision_chack('view', 'user', request.user)
-#         if (request.user.id and not permission['is_premited']):
-#             return Response({"message": permission['message']})
-#         user = self.get_object(pk)
-#         serializer = serializers.UsersSerializer(user)
-#         return Response(serializer.data)
-
-#     def put(self, request, pk, format=None):
-#         user = self.get_object(pk)
-#         mySerializer = serializers.UsersSerializerForUsers
-#         if (request.user.is_staff or request.user.is_superuser):
-#             mySerializer = serializers.UsersSerializerForAdmins
-#         serializer = mySerializer(
-#             user, data=request.data)
-#         print(request.user.id)
-#         permission = permision_chack('change', 'user', request.user)
-#         if (not permission['is_premited']):
-#             return Response({"message": permission['message']})
-#         # TODOs
-#         #  is_staf can updaate only is_email_verfied, is_role_verfied
-#         # not is staff and user.id=request.user.id can updaate only usernmae, password, email
-#         # if email updated then is_email_verfifyied =False
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class UserView(ItemView):
     MyModel = User
     queryset = User.objects.all()
@@ -244,3 +179,4 @@ class UserView(ItemView):
 class UsersView(ItemsView):
     queryset = User.objects.all()
     serializer_class = serializers.UsersSerializer
+    search_fields = '__all__'

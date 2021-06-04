@@ -1,17 +1,11 @@
-
-from notifications.models import Notifications
-from django.db.models.fields import related
-from django.db.models.fields.related import OneToOneField
-from safedelete.models import SafeDeleteModel, NO_DELETE
+from django.conf import settings
+from django.db import models
 from django.db.models import signals
 from django.dispatch import receiver
-from django.db import models
-from django.conf import settings
-from manage_patients.models import Profile, Symptoms
+from safedelete.models import SafeDeleteModel
+
+from manage_patients.models import Profile
 from users.models import User
-import ast
-from calendars.models import DateType
-import getpass
 
 
 class ChangeTrack(SafeDeleteModel):
@@ -24,6 +18,10 @@ class ChangeTrack(SafeDeleteModel):
         ('changed', 'changed'),
         ('deleted', 'deleted'),
     )
+    # TODO add signals if request.user make get request to data then add to seen_by
+    # Note make timer , if len(timesheet data) >10 then wahite users longer before set seen_by
+    seen_by = models.ManyToManyField(
+        User, related_name='who_can_see_comment', blank=True)
     action_type = models.CharField(choices=RCHOICES, max_length=50, blank=True)
     related_to = models.ForeignKey(
         User, related_name='related_name', null=True, on_delete=models.SET_NULL)

@@ -1,7 +1,7 @@
-from Functions.Myclasses import DynamicSerializer, ItemView, ItemsView
-from django.urls import path
-
 from django.contrib.auth.models import Group
+from django.urls import path
+from Functions.DynamicSer import DynamicSerializer
+from Functions.MyViews import ItemView, ItemsView
 
 MyModel = Group
 

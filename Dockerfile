@@ -7,6 +7,7 @@ ARG SECRET_KEY
 
 # libpq-dev and python3-dev help with psycopg2
 RUN apt-get update \
+  && python3.9 -m pip install --upgrade pip \
   && apt-get install -y python3.9-dev python3-pip libpq-dev curl \
   && apt-get clean all \
   && rm -rf /var/lib/apt/lists/*
@@ -17,7 +18,10 @@ RUN apt-get update \
 
 WORKDIR /opt/webapp
 COPY . .
-RUN pip3 install --no-cache-dir -q 'pipenv==2018.11.26' && pipenv install --deploy --system
+RUN pip3 install --no-cache-dir -q 'pipenv==2018.11.26' && python3.9 -m pipenv install --deploy --system
+# RUN pip3 install --no-cache-dir -q 'virtualenv==20.4.3' && pip3 install --deploy --system
+
+
 RUN python3 manage.py collectstatic --no-input
 
 # COPY requirements.txt ./

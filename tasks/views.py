@@ -1,14 +1,19 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.models import User, Group
-from django.views import generic
-from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
-from rest_framework import viewsets
-from django.contrib.auth.mixins import LoginRequiredMixin
 import datetime
-from .models import *
+
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views import generic
+from rest_framework import viewsets
+
 from .forms import *
+from .models import *
+# noinspection PyPackageRequirements
 from .serializers import *
+
+
 # Create your views here.
 
 

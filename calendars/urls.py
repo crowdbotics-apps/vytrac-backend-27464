@@ -1,10 +1,11 @@
-from rest_framework import fields, serializers
 import datetime
-from dateutil import parser
-from Functions.Myclasses import DynamicSerializer, ItemView, ItemsView, REC
+
 from django.urls import path
+from rest_framework import fields, serializers
+
+from Functions.DynamicSer import DynamicSerializer
+from Functions.MyViews import ItemView, ItemsView, REC
 from . import models
-from rest_framework import serializers
 
 MyModel = models.Date
 
@@ -167,13 +168,11 @@ class CalinderSeriazliser(DynamicSerializer):
 
 # del ItemsView.post
 class CalindersView(ItemsView):
-    ModelName = 'date'
     queryset = MyModel.objects.all()
     serializer_class = CalinderSeriazliser
 
 
 class CalinderView(ItemView):
-    ModelName = 'date'
     queryset = MyModel.objects.all()
     serializer_class = CalinderSeriazliser
 

@@ -1,15 +1,13 @@
-from Functions.Myclasses import DynamicSerializer
-from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
+from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
-
 from rest_framework.serializers import (
     ModelSerializer,
 )
 
-from rest_framework import serializers
-
+from Functions.DynamicSer import DynamicSerializer
 from .models import User
 
 
@@ -180,6 +178,9 @@ class UsersSerializerForUsers(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+
+
 class UsersSerializer(DynamicSerializer):
     # TODOs
     # if request.user not have permision to view prescriptions then pop.('presecriptins')
@@ -188,4 +189,5 @@ class UsersSerializer(DynamicSerializer):
     #     return Comment(**validated_data)
     class Meta:
         model = User
-        fields = '__all__'
+        fields = [*[x.name for x in User._meta.fields], 'dates']
+        depth = 1

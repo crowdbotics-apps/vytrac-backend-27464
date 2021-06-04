@@ -1,8 +1,10 @@
 from django.urls import path
-from Functions.Myclasses import DynamicSerializer, ItemView, ItemsView
-from django.urls import path
-from . import models
-MyModel = models.Tasks
+
+from Functions.DynamicSer import DynamicSerializer
+from Functions.MyViews import ItemView, ItemsView
+from .models import Tasks
+
+MyModel = Tasks
 
 
 class ItemSer(DynamicSerializer):

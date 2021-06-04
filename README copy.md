@@ -93,7 +93,7 @@ This project is set up to run using [Docker Compose](https://docs.docker.com/com
 1. Clone this repo and `cd delicate_hall_24106`
 1. Make sure `Pipfile.lock` exists. If it doesn't, generate it with:
    ```sh
-   $ docker run -it --rm -v "$PWD":/django -w /django python:3.9 pip3 install --no-cache-dir -q pipenv && pipenv lock
+   $ docker run -it --rm -v "$PWD":/django -w /django python:3.9 pip3 install --no-cache-dir -q pipenv && python3.9 -m pip install pipenv && python3.9 -m pipenv lock
    ```
    <!-- 1. Use `.env.example` to create `.env`:
       ```sh

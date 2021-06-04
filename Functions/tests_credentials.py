@@ -1,8 +1,7 @@
-
-from users.models import User
+from rest_framework import status
 from rest_framework.test import APIClient
 
-from rest_framework import status
+from users.models import User
 
 
 def tests_setup_function(self):
@@ -26,6 +25,6 @@ def tests_setup_function(self):
     self.token = lg_res.data["access"]
     client.credentials(
         HTTP_AUTHORIZATION=f'Bearer {self.token}')
-    res = client.get('/statistics/?resample=day&target=id')
+    res = client.get('/statistics/')
     self.client = client
     self.assertEqual(res.status_code, status.HTTP_200_OK)

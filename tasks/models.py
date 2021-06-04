@@ -1,14 +1,10 @@
-
-from rest_framework import serializers
 import logging
-from django.db import models
-from django.test.testcases import SerializeMixin
-from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
-from users.models import User
 # from coleman.utils.mail import send_mail_async as send_mail
 from hashlib import sha1
 
+from django.conf import settings
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,8 @@
 
 # import dj_database_url
-import sys
+import datetime
 import os
 from pathlib import Path
-import datetime
-from rest_framework.settings import APISettings
-from django.conf import settings
 
 # PROJECT_ROOT = os.path.dirname(__file__)
 # sys.path.insert(0, os.path.join(PROJECT_ROOT, 'apps'))

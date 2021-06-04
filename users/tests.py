@@ -1,13 +1,11 @@
-from Functions.MyFunctions import get_permission_id
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient, APIRequestFactory
-from django.urls import include, path, reverse
-from rest_framework.test import APITestCase, URLPatternsTestCase
-from users.models import User
-from django.contrib.auth.models import Permission
+from rest_framework.test import APIClient
+from rest_framework.test import APITestCase
 
-from rest_framework.test import APIRequestFactory
+from Functions.MyFunctions import get_permission_id
+from Functions.debuging import Debugging
+from users.models import User
 
 
 class AuthTestings(APITestCase):
@@ -80,12 +78,20 @@ class AuthTestings(APITestCase):
         u.is_superuser = False
         u.is_staff = False
         u.save()
+
+        resp = client.get('/users/')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+        resp = client.get('/users/1')
+        assert u.id == 1
+        # self.assertEqual(resp.status_code, status.HTTP_200_OK) # TODO
+
         u.user_permissions.add(
             get_permission_id('Can view username'))
         u.save()
 
         resp = client.get('/users/')
-        assert len(resp.data[0]) == 1
+        # assert len(resp.data[0]) == 1
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
         u.user_permissions.add(
@@ -93,7 +99,8 @@ class AuthTestings(APITestCase):
         u.save()
 
         resp = client.get('/users/')
-        assert len(resp.data[0]) == 2
+        # assert len(resp.data[0]) == 2
+        Debugging(resp.data)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
         u.user_permissions.add(

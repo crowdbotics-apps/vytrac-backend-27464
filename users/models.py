@@ -1,28 +1,19 @@
 
-from Functions.Myclasses import Rec
-from Functions.make_fields_permissions import make_fields_permissions
+# noinspection PyPackageRequirements
 from address.models import AddressField
-from multiselectfield import MultiSelectField
-from django.db.models.fields.related import ManyToManyField
-from safedelete.models import (
-    SafeDeleteModel,
-    NO_DELETE
-)
-from django.core.validators import MaxLengthValidator, RegexValidator
-from django.core.exceptions import ValidationError
-from rest_framework.authtoken.models import Token
-from django.dispatch import receiver
-from django.db.models.signals import post_save
-from django.db import models
-
+from django.conf import settings
+from django.contrib.auth.models import User, AbstractUser, PermissionsMixin
+from django.core.validators import RegexValidator
 # Create your models here.
 from django.db import models
-from django.utils import deconstruct, timezone
-from django.contrib.auth.models import User, Group, AbstractUser, AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import Group
+from django.utils import timezone
+from safedelete.models import (
+    SafeDeleteModel
+)
+
+from Functions.MyViews import Rec
+from Functions.make_fields_permissions import make_fields_permissions
+
 StyleTitleFormat = RegexValidator(r'^[^\s]+$', 'spaces not allowed')
 
 

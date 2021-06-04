@@ -1,20 +1,17 @@
-import os
-
-from channels.auth import AuthMiddlewareStack
-from channels.routing import ProtocolTypeRouter, URLRouter
-from django.core.asgi import get_asgi_application
-from notifications.routing import websocket_urlpatterns
-from django.contrib.auth.models import AnonymousUser
-from rest_framework_simplejwt.tokens import RefreshToken
-from channels.db import database_sync_to_async
-from users.models import User
-# from jwt import decode
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import UntypedToken
 from urllib.parse import parse_qs
 
+from channels.db import database_sync_to_async
+from channels.routing import ProtocolTypeRouter, URLRouter
+from django.contrib.auth.models import AnonymousUser
+from django.core.asgi import get_asgi_application
+# from jwt import decode
+from rest_framework_simplejwt.tokens import UntypedToken
+
+from notifications.routing import websocket_urlpatterns
+from users.models import User
+
+
 # TODO encode and decode the jwt_token
-from jwt import decode as jwt_decode
 
 
 @database_sync_to_async

@@ -1,21 +1,14 @@
-from Functions.tests_credentials import tests_setup_function
-from Functions.MyFunctions import get_permission_id
-from notifications.consumers import Alerts
-from channels.testing import HttpCommunicator
-from notifications.models import Notifications
-from django.test import TestCase
-
 import datetime
-from calendars.models import Date, DateType
 
 from rest_framework import status
-
 from rest_framework.test import APITestCase
+
+from Functions.tests_credentials import tests_setup_function
+from calendars.models import DateType
+from notifications.models import Notifications
 
 
 # from websockets import connect
-
-from asyncio import new_event_loop
 
 
 # class MyTests():

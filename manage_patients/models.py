@@ -1,9 +1,9 @@
-
+# noinspection PyPackageRequirements
 from address.models import AddressField
 from django.conf import settings
-from django.contrib.auth.models import Group
 from django.db import models
-from safedelete.models import SafeDeleteModel, NO_DELETE
+from safedelete.models import SafeDeleteModel
+
 from users.models import PHONE_NUMBER_REGEX, User
 
 
@@ -102,6 +102,9 @@ class Religion(models.Model):
 
 
 class Profile(SafeDeleteModel):
+    # https://www.django-rest-framework.org/api-guide/relations/#generic-relationships
+    # TODO return the assined dates/apoentments by ralations serializer
+    # TODO I should be able to see the task detail of patients.
 
     native_langauge = models.OneToOneField(
         Language,
@@ -160,9 +163,11 @@ class Profile(SafeDeleteModel):
         User, related_name='Patient_Profile_created_by', on_delete=models.DO_NOTHING, null=True,)
     # Note: Assigned_to = care_taker
     care_taker = models.ManyToManyField(
-        User, related_name='Patient_Profile_created_care_taker', blank=True)
+        User, help_text='providers, doktors, neuroses..', related_name='Patient_Profile_created_care_taker', blank=True)
     is_active = models.BooleanField(default=False)
     is_adhering = models.BooleanField(default=False)
+
+    # Display patient Engagement(booked_servces, ... ) on dashboard toggle
     booked_servces = models.ManyToManyField(
         Roster, related_name='booked_servces', blank=True)
     user = models.OneToOneField(

@@ -1,5 +1,7 @@
-from Functions.Myclasses import DynamicSerializer, ItemView, ItemsView
+from Functions.MyViews import ItemView, ItemsView
 from .. import models
+from Functions.DynamicSer import DynamicSerializer
+
 
 MyModel = models.Roster
 

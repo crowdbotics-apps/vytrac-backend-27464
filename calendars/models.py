@@ -1,13 +1,9 @@
-import datetime
-from Functions.Myclasses import Rec
-import inspect
-from django.db import models
-from safedelete.models import SafeDeleteModel, NO_DELETE
-from users.models import User
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-from django import forms
-from django.core.exceptions import ValidationError
+from django.db import models
+from safedelete.models import SafeDeleteModel
+
+from Functions.MyViews import Rec
+from users.models import User
 
 
 class DateType(SafeDeleteModel):
@@ -34,8 +30,11 @@ class Date(SafeDeleteModel):
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    users = models.ManyToManyField(User, related_name='date_with', blank=True)
+    users = models.ManyToManyField(User, related_name='dates',  blank=True)
     recurrence = Rec(choices=REC, blank=True, null=True)
+    seen_by = models.ManyToManyField(User, related_name='seen_by', blank=True)
+
+    is_archived = models.BooleanField(default=False)
     # TODO Automate appoentment imporatnace
     # if a patient with vital = priority meduam
     # if a atient with 2 vitals = priority heigh

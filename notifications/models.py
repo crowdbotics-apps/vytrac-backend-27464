@@ -1,12 +1,12 @@
 import datetime
-from Functions.debuging import Debugging
-from django.dispatch import receiver
-from django.db.models import signals
+
 from django.contrib.auth.models import Group
 from django.db import models
-from rest_framework.fields import DateTimeField
-from users.models import User
+from django.db.models import signals
+from django.dispatch import receiver
+
 from calendars.models import Date
+from users.models import User
 
 
 class Notifications(models.Model):
@@ -16,7 +16,7 @@ class Notifications(models.Model):
     is_seen = models.BooleanField(default=False)
     description = models.TextField(max_length=999, blank=True, null=True)
     deadline = models.DateTimeField(null=True, blank=True)
-    response_time = models.DurationField(null=True, blank=True)
+    response_time = models.IntegerField(blank=True, null=True)
     RCHOICES = (
         ('low', 'low'),
         ('averge', 'averge'),

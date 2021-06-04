@@ -1,5 +1,6 @@
-from Functions.Myclasses import DynamicSerializer, ItemView, ItemsView
 from .. import models
+from Functions.DynamicSer import DynamicSerializer
+from Functions.MyViews import ItemView, ItemsView
 
 MyModel = models.Payment
 

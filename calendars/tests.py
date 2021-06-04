@@ -1,22 +1,10 @@
 import datetime
-from re import DEBUG
-from Functions.tests_credentials import tests_setup_function
-from calendars import models
-from calendars.models import Date, DateType
-from django.contrib.auth.models import Group
-from django.db.models.query_utils import select_related_descend
-from django.urls import reverse
-from django.utils.functional import empty
-from rest_framework import status
-from rest_framework.test import APIClient, APIRequestFactory
-from rest_framework.test import RequestsClient
-from django.urls import include, path, reverse
-from rest_framework.test import APITestCase, URLPatternsTestCase
-from users.models import USERNAME, User
-from rest_framework.test import force_authenticate
-from requests.auth import HTTPBasicAuth
 
-from rest_framework.test import APIRequestFactory
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+from Functions.tests_credentials import tests_setup_function
+from calendars.models import DateType
 
 login_data = {'username': 'newusername',
               'password': 'password'}
