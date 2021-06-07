@@ -101,7 +101,7 @@ class Religion(models.Model):
     name = models.CharField(max_length=50, blank=True)
 
 
-class Profile(SafeDeleteModel):
+class Patient(SafeDeleteModel):
     # https://www.django-rest-framework.org/api-guide/relations/#generic-relationships
     # TODO return the assined dates/apoentments by ralations serializer
     # TODO I should be able to see the task detail of patients.

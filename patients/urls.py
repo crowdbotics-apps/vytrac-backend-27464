@@ -5,7 +5,6 @@ from .views import goals, dalyplan, roster, payment, profiles
 
 
 urlpatterns = [
-    # path('albums/', profiles.MyViews, name='albums'),
     path('goals/', goals.Views.as_view(), name='Goals'),
     path('goals/<int:pk>/', goals.View.as_view(), name='Goal'),
 

@@ -2,7 +2,7 @@ from Functions.DynamicSer import DynamicSerializer
 from Functions.MyViews import ItemView, ItemsView
 from .. import models
 
-MyModel = models.Profile
+MyModel = models.Patient
 
 
 class ModelSer(DynamicSerializer):

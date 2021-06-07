@@ -121,9 +121,11 @@ class CalinderTests(APITestCase):
             ],
         })
         assert 'overlap error' in str(res.data)
+        assert 'title' or 'description' not in str(res.data['overlap error'])
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     #
+        old = Date.objects.all().count()
         res = self.client.post('/calendars/', {
             "title": "first",
             "description": "",
@@ -139,7 +141,7 @@ class CalinderTests(APITestCase):
             ],
         })
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        assert Date.objects.all().count() == 2
+        assert Date.objects.all().count() == old+1
 
     def test_cant_meet_before_today(self):
         create_res = self.client.post('/calendars/', {
@@ -151,13 +153,11 @@ class CalinderTests(APITestCase):
             "description": "",
             "start": '2021-01-28',
             "end": '2021-01-29',
-            # "created_by": 1,
             "date_type": 1,
             "users": [1]
         }, format='json')
         assert "You can't have a meeting start or end before today." in str(create_res.data)
         self.assertEqual(create_res.status_code, status.HTTP_400_BAD_REQUEST)
-        assert Date.objects.all().count() == 2
 
     # TODO create_res = self.client.post('/calendars/', {
     #     "title": "first",

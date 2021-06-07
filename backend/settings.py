@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     # 'chat',
     'notifications',
     'calendars',
-    'manage_patients',
+    'patients',
     'automations',
     'permissions',
     "tasks",

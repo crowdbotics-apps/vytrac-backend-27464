@@ -60,7 +60,7 @@ def __init__(instance, update_fields, sender, *args, **kwargs):
     # TODO # new_notifcations.target_users.add(instance.users)
     # TODO A3
     # sender
-    # if Profile.care_taker change => Notifications.target=Profile.care_taker
+    # if patients.care_taker change => Notifications.target=patients.care_taker
     # if  instance.change_message ='bla bla b'
     # notifcations = Notifications.create()
     # notifcations.target_users.set([user.id,user2.id])

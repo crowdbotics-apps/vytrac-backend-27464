@@ -1,7 +1,7 @@
 from calendars.models import DateType
 import datetime
 from Functions.debuging import Debugging
-from manage_patients.models import Profile
+from patients.models import Patient
 from django.contrib.auth.models import Group
 from Functions.MyFunctions import get_permission_id
 from rest_framework import status
@@ -18,21 +18,22 @@ class AuthTestings(APITestCase):
         tests_setup_function(self)
 
         for i in range(1, 3):
-            Profile.objects.create(
+            Patient.objects.create(
                 user=User.objects.get(id=i), prescriptions=fake.text())
 
         group = Group.objects.create(name='provider')
         group.permissions.add(get_permission_id('Can view user'))
 
         group2 = Group.objects.create(name='enconter')
-        group2.permissions.add(get_permission_id('Can view phone number'))
+        group2.permissions.add(get_permission_id('Can view username'))
 
         group3 = Group.objects.create(name='doctor')
         group3.permissions.add(get_permission_id('Can change user'))
         group3.permissions.add(get_permission_id('Can view prescriptions'))
 
         group3 = Group.objects.create(name='boss')
-        group3.permissions.add(get_permission_id('Can view profile'))
+        group3.permissions.add(get_permission_id('Can view patient'))
+        group3.save()
 
         d = datetime.datetime
         date_format = '%Y-%m-%d'
@@ -80,12 +81,20 @@ class AuthTestings(APITestCase):
         self.user.save()
         res = self.client.get('/patient/')
 
-        # enconter = Group.objects.get(name='enconter')
-        # self.user.groups.add(enconter)
-        # self.user.save()
-        # resp = self.client.get('/users/')
-        # Debugging(resp.data, color='green')
-        # self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        enconter = Group.objects.get(name='enconter')
+        self.user.groups.add(enconter)
+        self.user.save()
+        resp = self.client.get('/users/')
+        assert len(resp.data[0])==1
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        self.user.user_permissions.add(get_permission_id('Can view email'))
+        self.user.save()
+        resp = self.client.get('/users/')
+        assert len(resp.data[0]) == 2
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_if_can_change_then_can_view(self):
         provider = Group.objects.get(name='doctor')

@@ -1,6 +1,8 @@
 from django.contrib.auth.models import Permission
 import re
 
+from Functions.debuging import Debugging
+
 
 def convert_to_list(django_boject):
     flat_object = django_boject.values_list('codename', flat=True)
@@ -56,9 +58,12 @@ def permision_chack(action, modelname, user):
     except:
         return {'is_premited': False, 'message': 'you are not authenticated'}
 
+from colorama import Fore, Back, Style
 
 # get_permission_id
 def get_permission_id(name):
+    if "Can" not in name:
+        print(Fore.BLUE+Back.RED + '============ name error ============')
     for x in Permission.objects.all():
         # Debugging(x.name)
         # Debugging(x.codename)

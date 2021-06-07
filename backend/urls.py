@@ -27,7 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     path('calendars/', include('calendars.urls')),
-    path('patient/', include('manage_patients.urls')),
+    path('patient/', include('patients.urls')),
     path('groups/', include('permissions.urls')),
     path('statistics/', include('timesheets.urls')),
     path('tasks/', include('tasks.urls')),

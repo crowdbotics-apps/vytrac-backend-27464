@@ -24,8 +24,8 @@ COPY . .
 
 RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
-RUN pipenv install --deploy --system
-#RUN pipenv install --skip-lock --system --dev
+#RUN pipenv install --deploy --system
+RUN pipenv install --skip-lock --system --dev
 RUN python3 manage.py collectstatic --no-input
 
 RUN adduser --disabled-password --gecos "" django

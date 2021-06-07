@@ -30,7 +30,7 @@ class Automation(models.Model):
 
 # @receiver(signals.post_save)
 # def __init__(instance, sender, signal, *args, **kwargs):
-# Profile.care_taker is changed => set care_taker.permissions.can_see_Profile =False
+# patients.care_taker is changed => set care_taker.permissions.can_see_Profile =False
 # if user.group changed => autoremove from care_takerlist
 
 #     try:
