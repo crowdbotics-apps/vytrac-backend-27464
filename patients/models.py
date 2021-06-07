@@ -7,8 +7,8 @@ from safedelete.models import SafeDeleteModel
 from users.models import PHONE_NUMBER_REGEX, User
 
 
-class Symptoms(SafeDeleteModel):
-    title = models.CharField(max_length=30, unique=True)
+class Symptom(SafeDeleteModel):
+    name = models.CharField(max_length=30, unique=True)
     description = models.TextField(max_length=400)
 
 
@@ -179,7 +179,7 @@ class Patient(SafeDeleteModel):
     )
     prescriptions = models.TextField(max_length=999, blank=True, null=True)
     symptoms = models.ManyToManyField(
-        Symptoms, related_name='symptoms', blank=True)
+        Symptom, related_name='symptoms', blank=True)
     blood_pressure = models.CharField(max_length=100, blank=True, null=True)
     age = models.PositiveIntegerField(blank=True, null=True)
 
