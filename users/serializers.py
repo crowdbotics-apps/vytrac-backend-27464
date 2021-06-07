@@ -8,8 +8,15 @@ from rest_framework.serializers import (
 )
 
 from Functions.DynamicSer import DynamicSerializer
-from .models import User
+from .models import User, Availablity
 
+
+class AvalibitlySer(serializers.ModelSerializer):
+    created_by = serializers.SlugRelatedField(many=False,read_only=True, slug_field='username')
+
+    class Meta:
+        model = Availablity
+        fields = '__all__'
 
 class LoginUsersSerializer(serializers.ModelSerializer):
     class Meta:

@@ -12,3 +12,9 @@ heroku config:set DISABLE_COLLECTSTATIC=1
 find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
 pip uninstall django
 pip install django
+
+# get all runing ports
+sudo lsof -PiTCP -sTCP:LISTEN
+
+# kill ports
+npx kill-port 8000

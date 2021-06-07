@@ -3,10 +3,21 @@ ENV LANG C.UTF-8
 ARG DEBIAN_FRONTEND=noninteractive
 ARG SECRET_KEY
 
-RUN apt-get update \
-  && apt-get install -y python3.8 -dev python3-pip libpq-dev curl \
-  && apt-get clean all \
-  && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        tzdata \
+        python3-setuptools \
+        python3-pip \
+        python3-dev \
+        python3-venv \
+        git \
+        && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+
+#  && apt-get install -y python3.8 -dev python3-pip libpq-dev curl \
+#  && apt-get clean all \
 
 WORKDIR /opt/webapp
 COPY . .
