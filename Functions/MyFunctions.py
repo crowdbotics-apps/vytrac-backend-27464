@@ -1,7 +1,11 @@
-from django.contrib.auth.models import Permission
 import re
 
+from colorama import Fore, Back
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+
 from Functions.debuging import Debugging
+from Functions.make_fields_permissions import make_fields_permissions
 
 
 def convert_to_list(django_boject):
@@ -19,7 +23,7 @@ def permision_chack(action, modelname, user):
     is_permited = False
     message = ''
     fields = None
-    required_permission = action+'_'+modelname
+    required_permission = action + '_' + modelname
     user_permissions = []
     try:
         user_permissions = convert_to_list(user.user_permissions.all())
@@ -46,26 +50,34 @@ def permision_chack(action, modelname, user):
 
         is_allowed = user.is_email_verified and user.is_role_verified and is_permited
         if (not is_allowed):
-            message += ', You are not permitted to '+action+' '+modelname
+            message += ', You are not permitted to ' + action + ' ' + modelname
         # new_track.prescriptions.set(model.symptoms.all())
 
         if (not user.is_role_verified):
             message += ', please waite staff to verify your role'
         if (not user.is_email_verified):
             message += ', please verfy your email'
-
         return {'is_premited': is_allowed, 'message': message, 'fields': fields}
     except:
         return {'is_premited': False, 'message': 'you are not authenticated'}
 
-from colorama import Fore, Back, Style
+
+
 
 # get_permission_id
-def get_permission_id(name):
+def get_permission_id(name,Model):
     if "Can" not in name:
-        print(Fore.BLUE+Back.RED + '============ name error ============')
-    for x in Permission.objects.all():
-        # Debugging(x.name)
-        # Debugging(x.codename)
-        if name == x.name:
-            return x.id
+        print(Fore.BLUE + Back.RED + '============ name error ============')
+    id = None
+    content_type = ContentType.objects.get_for_model(Model)
+
+    try:
+        id = Permission.objects.get(name=name, content_type=content_type).id
+    except:
+        make_fields_permissions(Permission, ContentType, Model)
+        try:
+            id = Permission.objects.get(name=name, content_type=content_type).id
+        except:
+            pass
+    return id
+

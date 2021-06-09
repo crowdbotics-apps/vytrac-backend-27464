@@ -7,7 +7,7 @@ from django.core.asgi import get_asgi_application
 # from jwt import decode
 from rest_framework_simplejwt.tokens import UntypedToken
 
-from notifications.routing import websocket_urlpatterns
+from Alerts.routing import websocket_urlpatterns
 from users.models import User
 
 

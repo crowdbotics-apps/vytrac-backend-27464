@@ -18,7 +18,7 @@ REC = (
 )
 
 
-class Date(SafeDeleteModel):
+class Event(SafeDeleteModel):
     title = models.CharField(max_length=30, null=True, blank=True)
     date_type = models.ForeignKey(
         DateType, related_name='Model', on_delete=models.DO_NOTHING, null=True,)
@@ -30,9 +30,11 @@ class Date(SafeDeleteModel):
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    users = models.ManyToManyField(User, related_name='dates',  blank=True)
+    users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name='dates',  blank=True)
     recurrence = Rec(choices=REC, blank=True, null=True)
-    seen_by = models.ManyToManyField(User, related_name='seen_by', blank=True)
+    seen_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name='seen_by', blank=True)
 
     is_archived = models.BooleanField(default=False)
     # TODO Automate appoentment imporatnace
@@ -44,6 +46,9 @@ class Date(SafeDeleteModel):
         ('heigh', 'heigh'),)
     priority = models.CharField(
         max_length=50, choices=RCHOICES, blank=True)
+
+    class Meta:
+        get_latest_by = 'date_created'
 
     # def save(self,*args, **kwargs):
     # TODO add the apientment validations logic here.

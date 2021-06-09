@@ -11,6 +11,113 @@ This is a repository for a web application developed with Django, built with [Cr
 5. Toast Notification
 6. Inline content editor in homepage
 
+# endpoints
+ - queries
+    - 'fieldname__relationalField'
+    - 'fieldname__gte=' ,'__in=', '__startwith=', ...etc
+    - 'fieldname=' 
+    - you also can add '?earliest=true' or '&latest=true', for the objects with date_created field
+The end points that are not documeted in swagger.
+
+- /patients/billings/
+
+  - **note**: patients will be renamed to manage_patients
+
+  * you will need only **GET** **PUT**,
+  * You wont need **DELTE** becuase this data will be immutable
+  * You wont need **POST** because billes data will be created automaticly after a user request a servce.
+
+- /alerts/ "convential I should name it notifcations"
+
+  - **onmessage**
+    ```
+    
+    ```
+    
+  - **send**
+    ```
+    {target:'events', id:1, is_seen:true}
+    ```
+    
+
+- /statistics/
+
+  - quick example "http://vytrac/statistics/?column__name=oxgyn&&field_value__lt=80"
+    here you will get only the users with a history of oxygen level that reached under 80
+  - quick example2 "http://vytrac/statistics/?column__name=oxgyn&&field_value__lt=80&date_created__gt=2021-06-09"
+    now instead of getting all the users with a history of low oxygen, will get only the users that have currently or last measurement bellow 80
+  - quick example3 "http://vytrac/statistics/?column__name=oxgyn&cal=min&number=10"
+    you will get the 10 peaks of oxygen values
+  - quick example4 "http://vytrac/statistics/?column__name=see_alerts&cal=duration"
+   You will get how long the user spend before seeing each alert
+    - Logic: calculate the time spent to change the value of the field `is_seen` from `false` to `true`
+  
+  
+  - **GET** headers={}
+    - the list view that look like the following as been sacrificed for the sake of aggregation and flexibility
+    ```
+    [{
+    "name": "blood pressure",
+    "user": 1,
+    "column": [{
+    "field_value": "22",
+    "name": "ccc",
+    "action": "added",
+    "seen_by": [1],
+    "date_created": "2021-06-09T10:42:41.458057Z"
+    }, {
+    "field_value": "44",
+    "name": "ddd",
+    "action": "added",
+    "seen_by": [],
+    "date_created": "2021-06-09T10:42:56.582589Z"
+    }]
+    }, {
+    "name": "oxgyn",
+    "user": 1,
+    "column": [{
+    "field_value": "11",
+    "name": "",
+    "action": "",
+    "seen_by": [],
+    "date_created": "2021-06-09T10:43:11.271641Z"
+    }]
+    }]
+    ```
+    - the aggrigaction friendly view 
+    ```
+    [{
+    "field_value": "22",
+    "name": "ccc",
+    "action": "added",
+    "seen_by": [1],
+    "date_created": "2021-06-09T10:42:41.458057Z",
+    "column": {
+    "name": "blood pressure",
+    "user": 1
+    }
+    }, {
+    "field_value": "44",
+    "name": "ddd",
+    "action": "added",
+    "seen_by": [],
+    "date_created": "2021-06-09T10:42:56.582589Z",
+    "column": {
+    "name": "blood pressure",
+    "user": 1
+    }
+    }, {
+    "field_value": "11",
+    "name": "",
+    "action": "",
+    "seen_by": [],
+    "date_created": "2021-06-09T10:43:11.271641Z",
+    "column": {
+    "name": "oxgyn",
+    "user": 1
+    }
+    }]
+    ```
 # Development
 
 Following are instructions on setting up your development environment.
@@ -29,12 +136,12 @@ This project is set up to run using [Docker Compose](https://docs.docker.com/com
 1. Clone this repo and `cd delicate_hall_24106`
 1. Make sure `Pipfile.lock` exists. If it doesn't, generate it with:
    ```sh
-   $ docker run -it --rm -v "$PWD":/django -w /django python:3.9 pip3 install --no-cache-dir -q pipenv && pipenv lock
+   $ docker run -it --rm -v "$PWD":/django -w /django python:3.8 pip3 install --no-cache-dir -q pipenv && python3.8 -m pip install pipenv && python3.8 -m pipenv lock
    ```
-1. Use `.env.example` to create `.env`:
-   ```sh
-   $ cp .env.example .env
-   ```
+   <!-- 1. Use `.env.example` to create `.env`:
+      ```sh
+      $ cp .env.example .env
+      ``` -->
 1. Update `.env` and `docker-compose.override.yml` replacing all `<placeholders>`
 1. Start up the containers:
 

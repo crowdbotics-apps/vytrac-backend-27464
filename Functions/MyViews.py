@@ -23,23 +23,20 @@ def convert_to_list(django_boject):
 class ItemsView(generics.ListAPIView):
     # permission_classes = [IsActive]
     # pagination_class = PageNumberPagination
-    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
-    filterset_fields = ['username', 'age']
+    filter_backends = (SearchFilter, OrderingFilter,)
     search_fields = '__all__'
 
     def get(self, request, *args, **kwargs):
-        global x
         context = {'request': request, 'method': 'view'}
 
-        items = self.queryset.all()
-
-        filters = queryset_filtering(self.queryset.model, request.GET)
+        items = queryset_filtering(self.queryset.model, request.GET)
         serializer = self.serializer_class(
-            items.filter(Q(filters)), context=context, many=True)
+            items, context=context, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #
-    def post(self, request, format=None):
+    def post(self, request):
+        Debugging(request, color='green')
         serializer = self.serializer_class(
             data=request.data, context={'method': 'add', 'request': request})
         if serializer.is_valid():

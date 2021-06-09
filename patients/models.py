@@ -4,12 +4,15 @@ from django.conf import settings
 from django.db import models
 from safedelete.models import SafeDeleteModel
 
+from calendars.models import Event
 from users.models import PHONE_NUMBER_REGEX, User
 
 
 class Symptom(SafeDeleteModel):
     name = models.CharField(max_length=30, unique=True)
     description = models.TextField(max_length=400)
+    score = models.PositiveIntegerField(blank=True, null=True,
+                                        help_text='the score represent the danger of the symptom')
 
 
 rosters = (
@@ -42,29 +45,6 @@ class Roster(SafeDeleteModel):
     title = models.CharField(max_length=30, unique=True)
     cost = models.PositiveIntegerField(blank=True, null=True)
     serveces = models.CharField(choices=rosters, max_length=50, blank=True)
-
-
-class EmergencyContact(models.Model):
-    first_name = models.CharField(max_length=50, blank=True)
-    last_name = models.CharField(max_length=50, blank=True)
-    last_name = models.CharField(max_length=50, blank=True)
-    phone_number = models.TextField(
-        max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
-    second_phone_number = models.TextField(
-        max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
-
-    RCHOICES = (
-        ('family', 'family'),
-        ('friend', 'friend'),
-        ('cousin', 'cousin'),
-        ('siblings', 'siblings'),
-        ('parent', 'parent'),
-        ('partner', 'partner'),
-
-    )
-    is_done = models.BooleanField(default=False)
-    relationship = models.CharField(
-        max_length=50, choices=RCHOICES, blank=True)
 
 
 class Insurance(SafeDeleteModel):
@@ -105,7 +85,8 @@ class Patient(SafeDeleteModel):
     # https://www.django-rest-framework.org/api-guide/relations/#generic-relationships
     # TODO return the assined dates/apoentments by ralations serializer
     # TODO I should be able to see the task detail of patients.
-
+    score = models.PositiveIntegerField(blank=True, null=True,
+                                        help_text='the score represent the how much is the patient need attentian or in danger')
     native_langauge = models.OneToOneField(
         Language,
         null=True,
@@ -154,13 +135,11 @@ class Patient(SafeDeleteModel):
         on_delete=models.CASCADE,
         primary_key=False,
     )
-    emergency_contact = models.ManyToManyField(
-        EmergencyContact, related_name='Profile_emergency_contact', blank=True)
     # plan = #TODO
 
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     created_by = models.ForeignKey(
-        User, related_name='Patient_Profile_created_by', on_delete=models.DO_NOTHING, null=True,)
+        User, related_name='Patient_Profile_created_by', on_delete=models.DO_NOTHING, null=True, )
     # Note: Assigned_to = care_taker
     care_taker = models.ManyToManyField(
         User, help_text='providers, doktors, neuroses..', related_name='Patient_Profile_created_care_taker', blank=True)
@@ -172,68 +151,50 @@ class Patient(SafeDeleteModel):
         Roster, related_name='booked_servces', blank=True)
     user = models.OneToOneField(
         User,
+        related_name='patient_profile',
         null=True,
         blank=True,
         on_delete=models.CASCADE,
         primary_key=False,
     )
-    prescriptions = models.TextField(max_length=999, blank=True, null=True)
-    symptoms = models.ManyToManyField(
-        Symptom, related_name='symptoms', blank=True)
-    blood_pressure = models.CharField(max_length=100, blank=True, null=True)
-    age = models.PositiveIntegerField(blank=True, null=True)
+    # TODO prescriptions, symptoms make them timesheet
 
     class Meta:
-        permissions = (
-
-            ('view_Profile.prescriptions_field', "Can view prescriptions"),
-            ('view_Profile.symptoms_field', "Can view symptoms"),
-            ('change_Profile.prescriptions_field', "Can change prescriptions"),
-            ('change_Profile.symptoms_field', "Can change symptoms"),
-        )
-
-# TODO make view for this
+        get_latest_by = 'date_created'
 
 
-class DalyPlan(SafeDeleteModel):
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name='Model', on_delete=models.DO_NOTHING, null=True,)
-    date_created = models.DateTimeField(auto_now_add=True, null=True)
+class EmergencyContact(models.Model):
+    patient = models.ManyToManyField(
+        Patient, related_name='emergency_contact', blank=True)
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    phone_number = models.TextField(
+        max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
+    second_phone_number = models.TextField(
+        max_length=500, blank=True, null=True, validators=[PHONE_NUMBER_REGEX])
+
     RCHOICES = (
-        ('low', 'low'),
-        ('averge', 'averge'),
-        ('heigh', 'heigh'),
+        ('family', 'family'),
+        ('friend', 'friend'),
+        ('cousin', 'cousin'),
+        ('siblings', 'siblings'),
+        ('parent', 'parent'),
+        ('partner', 'partner'),
+
     )
-    is_done = models.BooleanField(default=False)
-    priority = models.CharField(
+    relationship = models.CharField(
         max_length=50, choices=RCHOICES, blank=True)
-    pations = models.ManyToManyField(
-        User, related_name='pations_number', blank=True)
 
 
-# TODO make view for this
-class Goals(models.Model):
+class Conditions(models.Model):
     name = models.CharField(max_length=200, null=True, unique=True)
+    description = models.TextField(max_length=200, null=True, unique=True)
     RCHOICES = (
         ('low', 'low'),
         ('averge', 'averge'),
         ('heigh', 'heigh'),)
-    priority = models.CharField(
-        max_length=50, choices=RCHOICES, blank=True)
-    reason = models.CharField(max_length=200, blank=True)
-    informations = models.CharField(max_length=200, blank=True)
-
-
-class Thresholds(models.Model):
-    name = models.CharField(max_length=200, null=True, unique=True)
-    RCHOICES = (
-        ('low', 'low'),
-        ('averge', 'averge'),
-        ('heigh', 'heigh'),)
-    priority = models.CharField(
-        max_length=50, choices=RCHOICES, blank=True)
-    reason = models.CharField(max_length=200, blank=True)
-    informations = models.CharField(max_length=200, blank=True)
+    threshold = models.CharField(max_length=200, null=True, unique=True)
+    goal = models.CharField(max_length=200, null=True, unique=True)
 
 
 class Reports(SafeDeleteModel):
@@ -270,4 +231,6 @@ class Payment(SafeDeleteModel):
     is_payed = models.BooleanField(default=False)
     amount = models.CharField(max_length=50, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='Payment_user',
-                             on_delete=models.DO_NOTHING, null=True,)
+                             on_delete=models.DO_NOTHING, null=True, )
+    class Meta:
+        get_latest_by = 'date_created'

@@ -28,6 +28,6 @@ urlpatterns = [
 ]
 
 
-# @receiver(signals , sender=User)
+# @Receiver(signals , sender=User)
 # def my_handler(sender, **kwargs):
 #     TODO if 'can_change_smth'in instance.user_permissions then set'can_view_smth'

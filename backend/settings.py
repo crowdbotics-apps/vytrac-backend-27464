@@ -36,12 +36,15 @@ INSTALLED_APPS = [
     "users",
     'timesheets',
     # 'chat',
-    'notifications',
+    'Alerts',
     'calendars',
     'patients',
     'automations',
     'permissions',
     "tasks",
+
+    # Cusom
+    'Functions.make_fields_permissions.YourAppConfig',
 
     # packages
     'channels',
@@ -270,3 +273,10 @@ CHANNEL_LAYERS = {
 #     conn_max_age=600, ssl_require=True, default='postgres://zapysunzdyanqi:c00d9f0785e5f73ad9cfc6367a849956dbf2335329df6bacdf8b986bc76b4543@ec2-18-214-140-149.compute-1.amazonaws.com:5432/dbod7vel81anuh')
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# static files like images
+
+STATIC_URL = '/static/'
+MEDIA_URL = '/images/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')
+ACCOUNT_EMAIL_REQUIRED = False

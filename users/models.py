@@ -1,4 +1,3 @@
-
 # noinspection PyPackageRequirements
 from address.models import AddressField
 from django.conf import settings
@@ -11,13 +10,14 @@ from safedelete.models import (
     SafeDeleteModel
 )
 
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+
 from Functions.MyViews import Rec
-from Functions.make_fields_permissions import make_fields_permissions
 
 StyleTitleFormat = RegexValidator(r'^[^\s]+$', 'spaces not allowed')
 
-
-# @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+# @Receiver(post_save, sender=settings.AUTH_USER_MODEL)
 # def create_auth_token(sender, instance=None, created=False, **kwargs):
 #     if created:
 #         Token.objects.create(user=instance)
@@ -28,7 +28,6 @@ PHONE_NUMBER_REGEX = RegexValidator(
 
 USERNAME = RegexValidator(
     r'^[a-zA-Z ]+$', 'only letter from a-z are allowed')
-
 
 REC = (
     ('0 G day', 'Every day.'),
@@ -45,6 +44,9 @@ class Availablity(SafeDeleteModel):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     recurrence = Rec(blank=True, choices=REC)
+
+    class Meta:
+        get_latest_by = 'date_created'
 
 
 models_names = (('patien profiel', 'patien profiel'),)
@@ -64,6 +66,8 @@ class Sex(models.Model):
 
 
 class User(AbstractUser, PermissionsMixin):
+    photo = models.ImageField(blank=True, null=True)
+
     username = models.CharField(
         max_length=30, unique=True, validators=[USERNAME])
     email = models.EmailField(max_length=250, unique=True)
@@ -82,7 +86,7 @@ class User(AbstractUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
     receive_newsletter = models.BooleanField(default=False)
     birth_date = models.DateTimeField(blank=True, null=True)
-    address = models.CharField(max_length=300,  blank=True, null=True)
+    address = models.CharField(max_length=300, blank=True, null=True)
     city = models.CharField(max_length=30, blank=True, null=True)
     about_me = models.TextField(max_length=500, blank=True, null=True)
     phone_number = models.TextField(
@@ -101,6 +105,3 @@ class User(AbstractUser, PermissionsMixin):
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', ]
-
-    class Meta:
-        permissions = make_fields_permissions(User)

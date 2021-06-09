@@ -10,7 +10,7 @@ from Functions.debuging import Debugging
 from users.serializers import AvalibitlySer
 from . import models
 
-MyModel = models.Date
+MyModel = models.Event
 
 
 def overlapping(date_item, date_set):

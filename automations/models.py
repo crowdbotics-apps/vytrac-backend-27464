@@ -28,7 +28,7 @@ class Automation(models.Model):
     def __str__(self):
         return self.tag_name
 
-# @receiver(signals.post_save)
+# @Receiver(signals.post_save)
 # def __init__(instance, sender, signal, *args, **kwargs):
 # patients.care_taker is changed => set care_taker.permissions.can_see_Profile =False
 # if user.group changed => autoremove from care_takerlist

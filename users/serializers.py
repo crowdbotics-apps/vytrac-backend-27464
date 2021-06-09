@@ -8,15 +8,18 @@ from rest_framework.serializers import (
 )
 
 from Functions.DynamicSer import DynamicSerializer
+from patients.views import patients
+from timesheets.urls import StatisticSer
 from .models import User, Availablity
 
 
 class AvalibitlySer(serializers.ModelSerializer):
-    created_by = serializers.SlugRelatedField(many=False,read_only=True, slug_field='username')
+    created_by = serializers.SlugRelatedField(many=False, read_only=True, slug_field='username')
 
     class Meta:
         model = Availablity
         fields = '__all__'
+
 
 class LoginUsersSerializer(serializers.ModelSerializer):
     class Meta:
@@ -165,36 +168,10 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
     #     return super().validate(attrs)
 
 
-class UsersSerializerForAdmins(serializers.ModelSerializer):
-    password = serializers.CharField(
-        min_length=6, max_length=68, read_only=True, required=False)
-    username = serializers.CharField(
-        min_length=6, max_length=68, read_only=True, required=False)
-    email = serializers.CharField(
-        min_length=6, max_length=68, read_only=True, required=False)
-
-    class Meta:
-        model = User
-        fields = '__all__'
-
-
-class UsersSerializerForUsers(serializers.ModelSerializer):
-    class Meta:
-        read_only_fields = ['is_role_verified', 'is_superuser', 'is_staff']
-        model = User
-        fields = '__all__'
-
-
-
-
-
 class UsersSerializer(DynamicSerializer):
-    # TODOs
-    # if request.user not have permision to view prescriptions then pop.('presecriptins')
-    # if request.user not have permision to change prescriptions then pop.('presecriptins'), and set it to read only
-    # def create(self, validated_data):
-    #     return Comment(**validated_data)
+    statistics = StatisticSer(many=True,read_only=True)
+    patient_profile = patients.ModelSer(many=False, read_only=True)
     class Meta:
         model = User
-        fields = [*[x.name for x in User._meta.fields], 'dates']
+        fields = [*[x.name for x in User._meta.fields], 'dates','statistics','patient_profile']
         depth = 1

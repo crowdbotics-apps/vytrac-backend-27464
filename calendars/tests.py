@@ -3,11 +3,11 @@ import datetime
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from Functions.debuging import Debugging
+
 from Functions.tests_credentials import tests_setup_function
 from calendars.models import DateType
 from users.models import Availablity
-from .models import Date
+from .models import Event
 
 login_data = {'username': 'newusername',
               'password': 'password'}
@@ -125,7 +125,7 @@ class CalinderTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     #
-        old = Date.objects.all().count()
+        old = Event.objects.all().count()
         res = self.client.post('/calendars/', {
             "title": "first",
             "description": "",
@@ -141,7 +141,7 @@ class CalinderTests(APITestCase):
             ],
         })
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        assert Date.objects.all().count() == old+1
+        assert Event.objects.all().count() == old + 1
 
     def test_cant_meet_before_today(self):
         create_res = self.client.post('/calendars/', {
@@ -156,7 +156,8 @@ class CalinderTests(APITestCase):
             "date_type": 1,
             "users": [1]
         }, format='json')
-        assert "You can't have a meeting start or end before today." in str(create_res.data)
+        assert "You can't have a meeting start or end before today." in str(
+            create_res.data)
         self.assertEqual(create_res.status_code, status.HTTP_400_BAD_REQUEST)
 
     # TODO create_res = self.client.post('/calendars/', {

@@ -3,105 +3,67 @@ from django.db import models
 from django.db.models import signals
 from django.dispatch import receiver
 from safedelete.models import SafeDeleteModel
-
-from patients.models import Patient
+from django.utils.translation import ugettext_lazy as _
+from patients.models import Patient, Symptom
 from users.models import User
 
 
-class ChangeTrack(SafeDeleteModel):
-    # TODO automaticlly add the current loged in user
-    by = models.ForeignKey(settings.AUTH_USER_MODEL,
-                           null=True, on_delete=models.SET_NULL)
-    date_created = models.DateTimeField(auto_now_add=True, null=True)
+class Column(SafeDeleteModel):
+    name = models.CharField(max_length=500)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='statistics', null=True, on_delete=models.SET_NULL)
+
+
+# class BaseModel(SafeDeleteModel):
+
+
+
+class Value(SafeDeleteModel):
+    name = models.CharField(max_length=50, blank=True)
+    column = models.ForeignKey(Column, related_name='column', on_delete=models.CASCADE)
+    field_value = models.CharField(max_length=500)
     RCHOICES = (
         ('added', 'added'),
         ('changed', 'changed'),
         ('deleted', 'deleted'),
     )
-    # TODO add signals if request.user make get request to data then add to seen_by
-    # Note make timer , if len(timesheet data) >10 then wahite users longer before set seen_by
-    seen_by = models.ManyToManyField(
-        User, related_name='who_can_see_comment', blank=True)
-    action_type = models.CharField(choices=RCHOICES, max_length=50, blank=True)
-    related_to = models.ForeignKey(
-        User, related_name='related_name', null=True, on_delete=models.SET_NULL)
-    model_target = models.CharField(max_length=50, blank=True)
-    object_id = models.IntegerField(max_length=50, blank=True, null=True)
-    field_target = models.CharField(max_length=50, blank=True)
-    field_value = models.CharField(max_length=50, blank=True)
+    action = models.CharField(choices=RCHOICES, max_length=50, blank=True)
+    seen_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='seen_by_users', blank=True)
+    date_created = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+    class Meta:
+        get_latest_by = 'date_created'
 
 
-# @receiver(signals.pre_save, sender=Notifications)
+# 1. interactions with daly palns
+# 2. clicks or wahtever
+
+# @receiver(signals.pre_save, sender=Patient)
 # def __init__(instance, update_fields, sender, *args, **kwargs):
-    #    TODO if Notifications.is_seen !=instance.is_seen:
-    #         ChangeTrack.objects.create(action_type='changed', model_target=str(
-    #                         'patients'), field_value=str(Notifications.response_time), field_target='response_time', object_id=instance.id)
+#     try:
+#         old_object = Patient.objects.get(id=instance.id)
+#         for index, item in enumerate(old_object._meta.fields):
+#             field_target = item.name
+#             field_value = str(getattr(instance, field_target))
+#             old_field_value = str(getattr(old_object, field_target))
+#             # TODO symptoms
+#             # print('======================')
+#             # print(instance.symptoms.all())
+#             # print(old_object.symptoms.all())
+#             # print('======================')
+#             if (old_field_value != field_value):
+#                 # TODO realted_to = patients.user
+#                 ChangeTrack.objects.create(action_type='changed', model_target=str(
+#                     'patients'), field_value=field_value, field_target=field_target, object_id=instance.id)
+#     except:
+#         pass
 
 
-@receiver(signals.pre_save, sender=Patient)
-def __init__(instance, update_fields, sender, *args, **kwargs):
-    try:
-        old_object = Patient.objects.get(id=instance.id)
-        for index, item in enumerate(old_object._meta.fields):
-            field_target = item.name
-            field_value = str(getattr(instance, field_target))
-            old_field_value = str(getattr(old_object, field_target))
-            # TODO symptoms
-            # print('======================')
-            # print(instance.symptoms.all())
-            # print(old_object.symptoms.all())
-            # print('======================')
-            if (old_field_value != field_value):
-                # TODO realted_to = patients.user
-                ChangeTrack.objects.create(action_type='changed', model_target=str(
-                    'patients'), field_value=field_value, field_target=field_target, object_id=instance.id)
-    except:
-        pass
-
-
-@receiver(signals.post_save, sender=Patient)
-def __init__(instance, created, update_fields, sender, *args, **kwargs):
-    if (created):
-        for index, item in enumerate(instance._meta.fields):
-            field_target = item.name
-            field_value = str(getattr(instance, field_target))
-            # TODO realted_to = patients.user
-            ChangeTrack.objects.create(action_type='added', model_target=str(
-                'DateType'), field_value=field_value, field_target=field_target, object_id=instance.id)
-
-
-# @receiver(signals.pre_delete,sender=DateType)
-# def __init__(instance,created,sender, *args, **kwargs):
-#     ChangeTrack.objects.create(action_type='delete',model_target=str('DateType'))
-#     # sender_object = sender.objects.get(id=instance.id)
-#     # try:
-#         # obj = instance.change_message
-#         # obj = ast.literal_eval(obj)
-
-#     #     for field in obj:
-#     #         for key in field.keys():
-#     #             print('x ================')
-#     #             print(key)
-#     #             for field2 in field[key]['fields']:
-#     #                 print(instance[field2])
-#     #                 print(sender_object[key])
-#     #                 print(sender_object['name'])
-
-#     #                 print({'with dont':sender_object.name})
-
-
-#     #                 print(field2)
-#     # except:
-#     #     print('error ================')
-#     # print(instance)
-
-
-# # # @receiver(signals.post_delete)
-# # # def __init__(self, *args, **kwargs):
-# # #     try:
-# # #         # obj = instance.change_message
-# # #         # obj = ast.literal_eval(obj)
-# # #         print(self)
-# # #     except:
-# # #         print('error ================')
-# # #     # print(instance)
+# @receiver(signals.post_save, sender=Patient)
+# def __init__(instance, created, update_fields, sender, *args, **kwargs):
+#     if (created):
+#         for index, item in enumerate(instance._meta.fields):
+#             field_target = item.name
+#             field_value = str(getattr(instance, field_target))
+#             # TODO realted_to = patients.user
+#             ChangeTrack.objects.create(action_type='added', model_target=str(
+#                 'DateType'), field_value=field_value, field_target=field_target, object_id=instance.id)

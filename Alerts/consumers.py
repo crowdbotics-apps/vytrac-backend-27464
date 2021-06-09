@@ -1,13 +1,12 @@
 import json
 
 from channels.generic.websocket import WebsocketConsumer
-from django.db.models import signals
-from django.dispatch import receiver
 from rest_framework import serializers
 
 from Functions.debuging import Debugging
+from Functions.queryset_filtering import queryset_filtering
+from patients.models import Patient
 from users import models
-from .models import Notifications
 
 
 class Myser(serializers.ModelSerializer):
@@ -17,19 +16,36 @@ class Myser(serializers.ModelSerializer):
         depth = 1
 
 
+from urllib.parse import parse_qs
+
+
+
 def return_notifcations(scope):
+    ids = []
     user = scope['user']
-    data = Myser(models.User.objects.get(id=user.id),
-                 many=False, context=scope).data
-    for date in data['dates']:
-        date['is_seen'] = user.id in date['seen_by']
+    queries = scope['query_string']
+    queries = parse_qs(queries.decode("utf8"))
+    patients = queryset_filtering(Patient, queries)
+    users = queryset_filtering(Patient, queries)
+    # changeTracker = queryset_filtering(Column, queries)
+
+    # ids.append(items.values('id'))
+    # users = models.User.objects.filter(id__in=[1])
+    users = models.User.objects.all()
+
+
+    # if user.is_staff or user.is_superuser:
+    #     users = models.User.objects.all()
+    data = Myser(users,
+                 many=True, context=scope).data
+    # for date in data['dates']:
+    #     date['is_seen'] = user.id in date['seen_by']
     return json.dumps({'message': data})
 
 
 class Alerts(WebsocketConsumer):
 
     def disconnect(self, close_code):
-
         Debugging('disconnect====================== ', color='red')
         print(close_code)
         print(self)
@@ -40,7 +56,7 @@ class Alerts(WebsocketConsumer):
         user = self.scope["user"]
         data = json.loads(text_data)
         # TODO date= Date.objects.get(id=data.id)
-        #date = date.seen_by.add(user)
+        # date = date.seen_by.add(user)
         notifcation = return_notifcations(self.scope)
         self.send(notifcation)
 
@@ -51,18 +67,3 @@ class Alerts(WebsocketConsumer):
         notifcation = return_notifcations(self.scope)
         self.accept()
         self.send(notifcation)
-
-        # TODO A3
-        #notifcations =  Notifications.objects.filter(target_users__contains=self.scope['user'])
-        # notifcations.filter(target_groups__contains=self.scope['user'].groups)
-        # filter by scope["query_string"]
-        # 1. notifcation/?importance=high,meduim
-        # 2. notifcation/?title=appointment,interveiw
-        #
-
-        @receiver(signals.post_save, sender=Notifications)
-        def __init__(instance, sender, signal, *args, **kwargs):
-
-            x = json.dumps({'message': 'data'})
-            self.send(x)
-            pass

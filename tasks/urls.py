@@ -17,10 +17,6 @@ class TasksView(ItemsView):
     MyModel = MyModel
     queryset = MyModel.objects.all()
     serializer_class = ItemSer
-    # TODO
-    # def get():
-    # tasks = Itams.objects.filter(user=request.user)
-    #     return {'tasks':tasks, 'items':Items}
 
 
 class TaskView(ItemView):

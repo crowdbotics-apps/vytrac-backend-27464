@@ -1,146 +1,227 @@
 import datetime
+import difflib
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from Functions.debuging import Debugging
 from Functions.tests_credentials import tests_setup_function
-from timesheets.models import ChangeTrack
+from timesheets.models import Column
 
 
 class TestTimeSheets(APITestCase):
     def setUp(self):
-        assert ChangeTrack.objects.all().count() == 0
-        d = datetime.datetime
-        object1 = ChangeTrack.objects.create(
-            field_target='blood_pressure', field_value='220/80')
-        object2 = ChangeTrack.objects.create(
-            field_target='blood_pressure', field_value='210/80')
-        object3 = ChangeTrack.objects.create(
-            field_target='blood_pressure', field_value='230/85')
-        time = d.now() + datetime.timedelta(hours=1)
-        object1.date_created = time
-        object1.save()
-
-        time = d.now() + datetime.timedelta(hours=2)
-        object2.date_created = time
-        object2.save()
-
-        time = d.now() + datetime.timedelta(hours=3)
-        object3.date_created = time
-        object3.save()
-
         tests_setup_function(self)
 
-    def test_(self):
-        res = self.client.get(
-            '/statistics/')
+    def test_statistics_url(self):
+        res = self.client.get('/statistics/')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_timesheet_register_patients_data(self):
-        assert ChangeTrack.objects.all().count() == 3
+    def test_statistics_url_post(self):
+        res = self.client.post('/statistics/',
+                               {
+                                   "field_value": "22",
+                                   "name": "ccc",
+                                   "action": "added",
+                                   "seen_by": [1],
+                                   "date_created": "2021-06-09T10:42:41.458057Z",
+                                   "column": {
+                                       "name": "xx",
+                                       "user": 1
+                                   }
+                               }
+                               )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-        patient_res = self.client.post('/patient/', {
-            "prescriptions": "",
-            "blood_pressure": "120/80",
-            "created_by": 1,
-            "care_taker": [1],
-            "booked_servces": [],
-            "symptoms": []}, format='json')
-        self.assertEqual(patient_res.status_code, status.HTTP_201_CREATED)
-        trackes = ChangeTrack.objects.all().count()
-        assert trackes > 3
+    def test_typost(self):
+        Column.objects.create(name='oxygen', user=self.user)
+        Column.objects.create(name='prusser', user=self.user)
+        Column.objects.create(name='other', user=self.user)
+        data = {
+            "field_value": "22",
+            "name": "ccc",
+            "action": "added",
+            "seen_by": [1],
+            "date_created": "2021-06-09T10:42:41.458057Z",
+            "column": {
+                "name": "oxgyn",
+                "user": 1
+            }
+        }
+        res = self.client.post('/statistics/', data)
+
+        assert "Did you mean ['oxygen']?" in str(res.data)
+        self.assertNotEqual(res.status_code, status.HTTP_201_CREATED)
+
+        data['sure'] = "true"
+        res = self.client.post('/statistics/', data)
+        Debugging(res.data, color='green')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+    # def test_timesheet_register_patients_data(self):
+    #     assert ChangeTrack.objects.all().count() == 3
     #
-        patient_res = self.client.put(
-            '/patient/1/', {'blood_pressure': '130/85'}, format='json')
-        self.assertEqual(ChangeTrack.objects.all().count(), trackes + 1)
-
-        patient_res = self.client.put(
-            '/patient/1/', {'blood_pressure': '110/80'}, format='json')
-        assert ChangeTrack.objects.all().count() == trackes + 2
-
-        patient_res = self.client.put(
-            '/patient/1/', {'blood_pressure': '120/80'}, format='json')
-        assert ChangeTrack.objects.all().count() == trackes + 3
-
-        res = self.client.get('/statistics/?resample=day&target=id')
-
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        patient_res = self.client.post('/patient/', {
-            "prescriptions": "",
-            "blood_pressure": "999999/0000",
-            "created_by": 1,
-            "care_taker": [1],
-            "booked_servces": [],
-            "symptoms": []}, format='json')
-        assert patient_res.data['id'] == 2
-        self.assertGreaterEqual(
-            ChangeTrack.objects.all().count(), trackes + 20)
-        self.assertEqual(patient_res.status_code, status.HTTP_201_CREATED)
-
-        res = self.client.get(
-            '/statistics/?fields=field_target,object_id')
-        assert 'object_id' in str(res.data)
-
-        res = self.client.get(
-            '/statistics/?object_id=1&fields=object_id')
-        # assert "'object_id', 2" in str(res.data)
-        # assert "field_target" not in str(res.data)
-        #
-        # res = self.client.get(
-        #     '/statistics/?object_id=2&fields=object_id')
-        # assert "'object_id', 2" in str(res.data)
-        # assert "OrderedDict" in str(res.data)
-
-    def test_statistics(self):
-        url = '?field_value__gt=210/80'
-        # url += '&target=field_value'
-        # url += '&field_target=blood_pressure'
-        # cal = '&cal=min&resample=1D'
-        # url += '&target=field_value'
-        # url += '&field_target=blood_pressure'
-        res = self.client.get('/statistics/'+url)
-
-        assert '210/80' not in str(res.data)
-        assert '220/80' in str(res.data)
-        #
-        res = self.client.get('/statistics/?field_value__gt="210/80&cal=max&resample=1D&target=field_value&field_target=blood_pressure')
-        Debugging(res.data)
-        # assert '210/80' not in str(res.data)
-        # assert '230/85' in str(res.data)
-
+    #     patient_res = self.client.post('/patient/', {
+    #         "prescriptions": "",
+    #         "blood_pressure": "120/80",
+    #         "created_by": 1,
+    #         "care_taker": [1],
+    #         "booked_servces": [],
+    #         "symptoms": []}, format='json')
+    #     self.assertEqual(patient_res.status_code, status.HTTP_201_CREATED)
+    #     trackes = ChangeTrack.objects.all().count()
+    #     assert trackes > 3
+    #     #
+    #     patient_res = self.client.put(
+    #         '/patient/1/', {'blood_pressure': '130/85'}, format='json')
+    #     self.assertEqual(ChangeTrack.objects.all().count(), trackes + 1)
+    #
+    #     patient_res = self.client.put(
+    #         '/patient/1/', {'blood_pressure': '110/80'}, format='json')
+    #     assert ChangeTrack.objects.all().count() == trackes + 2
+    #
+    #     patient_res = self.client.put(
+    #         '/patient/1/', {'blood_pressure': '120/80'}, format='json')
+    #     assert ChangeTrack.objects.all().count() == trackes + 3
+    #
+    #     res = self.client.get('/statistics/?resample=day&target=id')
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #
+    #     patient_res = self.client.post('/patient/', {
+    #         "prescriptions": "",
+    #         "blood_pressure": "999999/0000",
+    #         "created_by": 1,
+    #         "care_taker": [1],
+    #         "booked_servces": [],
+    #         "symptoms": []}, format='json')
+    #     assert patient_res.data['id'] == 2
+    #     self.assertGreaterEqual(
+    #         ChangeTrack.objects.all().count(), trackes + 20)
+    #     self.assertEqual(patient_res.status_code, status.HTTP_201_CREATED)
+    #
+    #     res = self.client.get(
+    #         '/statistics/'
+    #         '?object_id=1'
+    #         '&fields=object_id'
+    #
+    #     )
+    #     for i in res.data:
+    #         assert i['object_id'] == 1
+    #     assert "field_target" not in str(res.data)
+    #     assert "object_id" in str(res.data)
+    #
+    #     res = self.client.get(
+    #         '/statistics/'
+    #         '?object_id=2'
+    #         '&fields=object_id'
+    #     )
+    #     for i in res.data:
+    #         assert i['object_id'] == 2
+    #
+    # def test_statistics(self):
+    #     res = self.client.get('/statistics/?'
+    #                           '&cal=max'
+    #                           "&resample=2H"
+    #                           '&field_target=blood_pressure'
+    #                           )
+    #
+    #     assert len(res.data) == 2
+    #     assert '220/80' in str(res.data)
+    #     assert '210/80' not in str(res.data)
+    #
+    #     res = self.client.get('/statistics/?'
+    #                           # '?field_value__gt="210/80'
+    #                           '&cal=min'
+    #                           # "&fields=field_value,field_target,date_created,object_id"
+    #                           "&resample=2H"
+    #                           '&field_target=blood_pressure'
+    #                           )
+    #     # Debugging(res.data, color='green')
+    #     # TODO
+    #     # assert len(res.data) == 2
+    #     # assert '220/80' not in str(res.data)
+    #     # assert '210/80' in str(res.data)
+    #
+    #     res = self.client.get('/statistics/?'
+    #                           # '?field_value__gt="210/80'
+    #                           '&cal=min'
+    #                           # "&fields=field_value,field_target,date_created,object_id"
+    #                           "&resample=1D"
+    #                           '&field_target=blood_pressure'
+    #                           )
+    #     assert len(res.data) == 1
+    #     assert '210/80' in str(res.data)
+    #     assert '230/80' not in str(res.data)
+    #
     # def test_lookups(self):
     #     res = self.client.get(
     #         '/statistics/?field_value__gt=210/80&fields=field_value')
-    #     Debugging(res.data, color='red')
+    #
     #     assert '210/80' not in str(res.data)
     #     assert '220/80' in str(res.data)
-    #
+    #     #
     #     res = self.client.get(
     #         '/statistics/?field_value__lt=220/80&fields=field_value')
     #     assert '210/80' in str(res.data)
-    # assert '220/80' not in str(res.data)
+    #     assert '220/80' not in str(res.data)
+    #
+    # def test_auth(self):
+    #     res = self.client.get(
+    #         '/statistics/')
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #
+    #     self.user.is_staff = False
+    #     self.user.is_superuser = False
+    #     self.user.save()
+    #     res = self.client.get(
+    #         '/statistics/')
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #
+    # def test_cant_user_cal_and_fields(self):
+    #     res = self.client.get(
+    #         '/statistics/?fields=field_value&cal=max')
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #
+    #     res = self.client.get(
+    #         '/statistics/?fields=field_value')
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_auth(self):
-        res = self.client.get(
-            '/statistics/')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+    # def test_statistics_with_filters(self):
+    #     res = self.client.get('/statistics/?'
+    #                           '?field_value__gt="210/80'
+    #                           '&cal=max'
+    #                           "&fields=field_value,field_target,date_created,object_id"
+    #                           "&resample=1D"
+    #                           '&field_target=blood_pressure'
+    #                           )
+    #     assert len(res.data) == 1
+    #     assert '230/85' in str(res.data)
+    #     assert '210/80' not in str(res.data)
 
-        self.user.is_staff = False
-        self.user.is_superuser = False
-        self.user.save()
-        res = self.client.get(
-            '/statistics/')
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    # def test_durations(self):
+    #
+    #     # TODO test_durations
+    #     def prime(num):
+    #         for x in range(2, num):
+    #             if num % x == 0:
+    #                 return False
+    #         return True
+    #
+    #     for i in range(1,10):
+    #         new = ChangeTrack.objects.create(field_target='is_seen', field_value=str(prime(i)), object_id='1')
+    #         new.date_created = '2021-06-0'+f'{i}'+'T13:48:10.082531Z'
+    #         new.save()
+    #
+    #     res = self.client.get('/statistics/?'
+    # '&cal=max'
+    # "&fields=field_value,field_target,date_created,object_id"
+    # "&resample=1D"
+    # '&field_target=blood_pressure'
+    # )
+    # Debugging(res.data, color='green')
 
-    def test_cant_user_cal_and_fields(self):
-        res = self.client.get(
-            '/statistics/?fields=field_value&cal=max')
-        Debugging(res.data, color='blue')
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-        res = self.client.get(
-            '/statistics/?fields=field_value')
-        Debugging(res.data, color='blue')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+    # assert len(res.data) == 1
+    # assert '230/85' in str(res.data)
+    # assert '210/80' not in str(res.data)
