@@ -22,7 +22,7 @@ from urllib.parse import parse_qs
 
 def return_notifcations(scope):
     ids = []
-    user = scope['user']
+    user = scope.get('user')
     queries = scope['query_string']
     queries = parse_qs(queries.decode("utf8"))
     patients = queryset_filtering(Patient, queries)
@@ -45,25 +45,27 @@ def return_notifcations(scope):
 
 class Alerts(WebsocketConsumer):
 
+    def connect(self):
+        user = self.scope.get('user')
+        # notifcation = return_notifcations(self.scope)
+        self.accept()
+        self.send('notifcation')
+
+    def receive(self, text_data):
+        errors = []
+        user = self.scope.get('user')
+        # data = json.loads(text_data)
+        # TODO date= Date.objects.get(id=data.id)
+        # date = date.seen_by.add(user)
+        # notifcation = return_notifcations(self.scope)
+        # self.send(notifcation)
+
+        notifcation = return_notifcations(self.scope)
+
     def disconnect(self, close_code):
-        Debugging('disconnect====================== ', color='red')
         print(close_code)
         print(self)
 
-    def receive(self, text_data):
-        Debugging('receive======================', color='green')
-        errors = []
-        user = self.scope["user"]
-        data = json.loads(text_data)
-        # TODO date= Date.objects.get(id=data.id)
-        # date = date.seen_by.add(user)
-        notifcation = return_notifcations(self.scope)
-        self.send(notifcation)
 
-        notifcation = return_notifcations(self.scope)
 
-    def connect(self):
-        user = self.scope["user"]
-        notifcation = return_notifcations(self.scope)
-        self.accept()
-        self.send(notifcation)
+

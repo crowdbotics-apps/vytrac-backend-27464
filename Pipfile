@@ -148,8 +148,9 @@ PyJWT = ">=2.1.0"
 pyOpenSSL = ">=20.0.0"
 Twisted = ">=21.2.0"
 colorama = "*"
+selenium = "*"
 
 [dev-packages]
 
 [requires]
-python_version = ">=3.9"
+python_version = "*"

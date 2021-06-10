@@ -8,6 +8,7 @@ from django.core.asgi import get_asgi_application
 from rest_framework_simplejwt.tokens import UntypedToken
 
 from Alerts.routing import websocket_urlpatterns
+from Functions.debuging import Debugging
 from users.models import User
 
 
@@ -16,6 +17,7 @@ from users.models import User
 
 @database_sync_to_async
 def get_user(querys):
+    Debugging('xxxxxxxx', color='yellow')
     token = parse_qs(querys.decode("utf8"))['token'][0]
     token_data = UntypedToken(token)
     user_id = token_data["user_id"]
@@ -27,15 +29,9 @@ def get_user(querys):
 
 class QueryAuthMiddleware:
     def __init__(self, app):
-        # Store the ASGI application we were passed
         self.app = app
-
     async def __call__(self, scope, receive, send):
-        # Look up user from query string (you should also do things like
-        # checking if it is a valid user ID, or if scope["user"] is already
-        # populated).
         scope['user'] = await get_user(scope["query_string"])
-
         return await self.app(scope, receive, send)
 
 
