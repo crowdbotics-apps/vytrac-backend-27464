@@ -31,7 +31,7 @@ class Event(SafeDeleteModel):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     users = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name='dates',  blank=True)
+        settings.AUTH_USER_MODEL, related_name='events',  blank=True)
     recurrence = Rec(choices=REC, blank=True, null=True)
     seen_by = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name='seen_by', blank=True)

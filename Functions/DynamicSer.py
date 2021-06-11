@@ -45,7 +45,7 @@ class DynamicSerializer(QueryFieldsMixin, serializers.ModelSerializer):
         read_only_fields = kwargs.pop('read_only_fields', change_fields)
 
         try:
-            Relations_fields = ['dates']
+            Relations_fields = ['events']
             for field in Relations_fields:
                 permission = permision_chack('view', field[0:-1], user)
                 if not is_owner and not permission['is_premited']:

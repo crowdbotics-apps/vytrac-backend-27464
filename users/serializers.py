@@ -44,5 +44,5 @@ class UsersSerializer(DynamicSerializer):
     patient_profile = patients.ModelSer(many=False, read_only=True)
     class Meta:
         model = User
-        fields = [*[x.name for x in User._meta.fields], 'dates','statistics','patient_profile']
+        fields = [*[x.name for x in User._meta.fields], 'events','statistics','patient_profile']
         depth = 1
