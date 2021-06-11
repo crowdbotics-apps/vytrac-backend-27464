@@ -1,4 +1,5 @@
 FROM ubuntu:bionic
+# docker run -it --rm -v "$PWD":/django -w /django python:3.8 pip3 install --no-cache-dir -q pipenv && python3.8 -m pip install pipenv && python3.8 -m pipenv lock
 
 ENV LANG C.UTF-8
 ARG DEBIAN_FRONTEND=noninteractive
