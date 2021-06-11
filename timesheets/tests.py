@@ -6,12 +6,32 @@ from rest_framework.test import APITestCase
 
 from Functions.debuging import Debugging
 from Functions.tests_credentials import tests_setup_function
-from timesheets.models import Column
+from timesheets.models import Column, Value
+
+
+def prime(num):
+    for x in range(2, num):
+        if num % x == 0:
+            return False
+        return True
 
 
 class TestTimeSheets(APITestCase):
     def setUp(self):
         tests_setup_function(self)
+
+        cal1 = Column.objects.create(name='oxygen', user=self.user)
+        cal2 = Column.objects.create(name='prusser', user=self.user)
+        cal3 = Column.objects.create(name='late', user=self.user)
+
+        for i in range(4):
+            Value.objects.create(column=cal1, field_value=i)
+
+        for i in range(4):
+            Value.objects.create(column=cal2, field_value=str(i + 1))
+
+        for i in range(4):
+            Value.objects.create(column=cal3, field_value=str(prime(i)))
 
     def test_statistics_url(self):
         res = self.client.get('/statistics/')
@@ -34,9 +54,7 @@ class TestTimeSheets(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_typost(self):
-        Column.objects.create(name='oxygen', user=self.user)
-        Column.objects.create(name='prusser', user=self.user)
-        Column.objects.create(name='other', user=self.user)
+
         data = {
             "field_value": "22",
             "name": "ccc",
@@ -55,8 +73,28 @@ class TestTimeSheets(APITestCase):
 
         data['sure'] = "true"
         res = self.client.post('/statistics/', data)
-        Debugging(res.data, color='green')
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+    def test_latest_earliest(self):
+        res = self.client.get('/statistics/?latest=true')
+        assert res.data[0]['column']['name'] == 'late'
+
+        res = self.client.get('/statistics/?earliest=true')
+        assert res.data[0]['column']['name'] == 'oxygen'
+
+    def test_mutli_quries(self):
+        res = self.client.get('/statistics/?earliest=true&fields=field_value,date_created')
+        assert 'seen_by' not in str(res.data)
+        assert 'field_value' in str(res.data)
+
+    def test_depth_qures(self):
+        res = self.client.get('/statistics/?column__name=oxygen')
+        for i in res.data:
+            assert i['column']['name'] == 'oxygen'
+
+        res = self.client.get('/statistics/?column__name=late')
+        for i in res.data:
+            assert i['column']['name'] == 'late'
 
     # def test_timesheet_register_patients_data(self):
     #     assert ChangeTrack.objects.all().count() == 3

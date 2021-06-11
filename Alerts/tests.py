@@ -1,20 +1,39 @@
 import datetime
-from asyncio.events import new_event_loop
+import json
 
 import websockets
-from channels.testing import HttpCommunicator, WebsocketCommunicator
-from django.test import TestCase
-from rest_framework import status
+from channels.testing import WebsocketCommunicator
 from rest_framework.test import APITestCase
 
+from Alerts.consumers import Alerts
 from Functions.debuging import Debugging
 from Functions.tests_credentials import tests_setup_function
 from calendars.models import DateType
-from Alerts.consumers import Alerts
-from channels.generic.websocket import WebsocketConsumer
-import asyncio
 
-from websockets import connect
+
+class WebsocketTests(APITestCase):
+    def setUp(self):
+        tests_setup_function(self)
+
+        self.url = f"alerts/?token={self.token}"
+
+    # def tearDown(self):
+    #     Debugging(User.objects.all(), color='yellow')
+
+    async def test_connect(self):
+        communicator = WebsocketCommunicator(Alerts.as_asgi(), self.url)
+        connected, subprotocol = await communicator.connect()
+        assert connected
+        await communicator.send_to(text_data="hello")
+        response = await communicator.receive_from()
+        await communicator.disconnect()
+
+    async def test_send(self):
+        communicator = WebsocketCommunicator(Alerts.as_asgi(), self.url)
+        connected, subprotocol = await communicator.connect()
+        await communicator.send_to(text_data="hello")
+        response = await communicator.receive_from()
+        await communicator.disconnect()
 
 
 class AlertsTests(APITestCase):
@@ -49,6 +68,14 @@ class AlertsTests(APITestCase):
         tests_setup_function(self)
 
 
+    async def test_not_auth(self):
+        uri = f'ws://localhost:8000/alerts/?token={self.token}&x=xxx'
+        async with websockets.connect(uri) as websocket:
+            data = await websocket.recv()
+            data = json.loads(data)
+            # name = input("What's your name? ")
+            # await websocket.send(name)
+            # Debugging(data, color='green')
 
     def test_dates_notifcations(self):
         DateType.objects.create(name='meeting')
