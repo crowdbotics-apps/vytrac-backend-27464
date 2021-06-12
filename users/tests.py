@@ -3,16 +3,16 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
-from Functions.MyFunctions import get_permission_id
+from Functions.Permissions import get_permission_id
 from Functions.debuging import Debugging
 from users.models import User
 
 
 class AuthTestings(APITestCase):
     def setUp(self):
-        self.register_data = {'email': 'newusername@g.com', 'username': 'newusername',
+        self.register_data = {'email': 'Clover@g.com', 'username': 'Clover',
                               'password': 'password', 'password2': 'password', }
-        self.login_data = {'username': 'newusername',
+        self.login_data = {'username': 'Clover',
                            'password': 'password'}
 
     register_url = reverse('register')
@@ -30,7 +30,7 @@ class AuthTestings(APITestCase):
             self.register_url, self.register_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(User.objects.get(id=1).username, 'newusername')
+        self.assertEqual(User.objects.get(id=1).username, 'Clover')
 
     def test_api_jwt_and_permissions_and_users(self):
         assert User.objects.count() == 0
@@ -73,8 +73,7 @@ class AuthTestings(APITestCase):
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
         resp = client.get('/users/')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        assert 'You are not permitted to view user' in str(
-            resp.data['permission error'])
+        assert 'You are not permitted to view user' in str(resp.data['permission error'])
         u.is_superuser = False
         u.is_staff = False
         u.save()

@@ -9,7 +9,7 @@ from calendars.models import DateType
 from users.models import Availablity
 from .models import Event
 
-login_data = {'username': 'newusername',
+login_data = {'username': 'Clover',
               'password': 'password'}
 
 

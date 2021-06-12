@@ -5,7 +5,7 @@ from faker import Faker
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from Functions.MyFunctions import get_permission_id
+from Functions.Permissions import get_permission_id
 from Functions.debuging import Debugging
 from Functions.tests_credentials import tests_setup_function
 from calendars.models import DateType
@@ -105,23 +105,52 @@ class AuthTestings(APITestCase):
         resp = self.client.get('/users/2/')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)  # TODO
 
-    def test_can_change(self):
+    def test_can_not_change(self):
         self.user.user_permissions.add(get_permission_id('Can view user', User))
         self.user.save()
 
-        resp = self.client.get('/users/2/')
-        assert resp.data['username'] == 'newusername3'
+        userI = User.objects.get(id=1)
+        resp = self.client.put('/users/1/', {'username': 'updated', 'password': 'password', 'email': 'Alex@g.com'})
+        userF = User.objects.get(id=1)
 
-        resp = self.client.put(
-            '/users/1/', {'username': 'updated', 'password': 'password', 'email': 'newusername2@g.com'})
+        self.assertNotEqual(userI.username, userF.username)
+        self.assertEqual(userI.email, userF.email)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    #TODO def test_can_change_email(self):
+    #     #TODO self.user.user_permissions.add(get_permission_id('Can change email', User))
+    #     self.user.is_superuser = True
+    #     self.user.save()
+    #
+    #     userI = User.objects.get(id=1)
+    #     resp = self.client.put('/users/1/', {'username': 'updated', 'password': 'password', 'email': 'Alex@g.com'})
+    #     userF = User.objects.get(id=1)
+    #     Debugging(resp.data, color='green')
+    #     self.assertNotEqual(userI.email, userF.email)
+
+    def test_permission_to_put(self):
+        self.user.user_permissions.clear()
+        self.user.is_staff =False
+        self.user.is_superuser = False
+        self.user.save()
+        resp = self.client.put('/users/2/', {'username': 'updated', 'password': 'password'})
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
         self.user.user_permissions.add(get_permission_id('Can change user', User))
         self.user.save()
-        resp = self.client.put(
-            '/users/1/', {'username': 'updated', 'password': 'password', 'email': 'newusername2@g.com'})
+        resp = self.client.put('/users/2/', {'username': 'updated', 'password': 'password'})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_more(self):
+        self.user.user_permissions.add(get_permission_id('Can change user', User))
+        self.user.save()
+        resp = self.client.put('/users/1/', {'username': 'updated', 'password': 'password'})
         assert resp.data['username'] == 'updated'
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_cant_update_to_ununique(self):
+        res = self.client.put('/users/1/', {'username': 'Alex', 'password': 'password'})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     # def test_staff_cannot_update_their_role(self):
     #     self.user.is_staff = True

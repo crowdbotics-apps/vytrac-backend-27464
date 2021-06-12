@@ -1,7 +1,7 @@
 from drf_queryfields import QueryFieldsMixin
 from rest_framework import serializers
 
-from Functions.MyFunctions import permision_chack
+from Functions.Permissions import permision_chack
 from Functions.debuging import Debugging
 
 

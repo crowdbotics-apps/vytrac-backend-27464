@@ -3,12 +3,15 @@ import json
 
 import websockets
 from channels.testing import WebsocketCommunicator
+from rest_framework import status
 from rest_framework.test import APITestCase
+from asgiref.sync import sync_to_async
 
 from Alerts.consumers import Alerts
 from Functions.debuging import Debugging
 from Functions.tests_credentials import tests_setup_function
-from calendars.models import DateType
+from calendars.models import DateType, Event
+from users.models import User
 
 
 class WebsocketTests(APITestCase):
@@ -67,14 +70,59 @@ class AlertsTests(APITestCase):
         DateType.objects.create(name='appointment')
         tests_setup_function(self)
 
-    async def test_not_auth(self):
+    async def test_is_auth(self):
         uri = f'ws://localhost:8000/alerts/?token={self.token}&x=xxx'
         async with websockets.connect(uri) as websocket:
-            data = await websocket.recv()
-            data = json.loads(data)
-            # name = input("What's your name? ")
-            # await websocket.send(name)
-            # Debugging(data, color='green')
+            res = await websocket.recv()
+            res = json.loads(res)
+            self.assertEqual(len(res), 4)
+
+    async def test_can_see_only_own_data(self):
+        uri = f'ws://localhost:8000/alerts/?token={self.token3}'
+        async with websockets.connect(uri) as websocket:
+            res = await websocket.recv()
+            res = json.loads(res)
+            self.assertEqual(len(res), 1)
+
+    async def test_fields_filter(self):
+        uri = f'ws://localhost:8000/alerts/?token={self.token}&fields=username'
+        async with websockets.connect(uri) as websocket:
+            res = await websocket.recv()
+            res = json.loads(res)
+            Debugging(res, color='green')
+            # TODO
+            # for i in res:
+    #             assert 'username' in i
+    #             assert 'events' not in i
+
+    # async def test_live_update(self):
+    #     uri = f'ws://localhost:8000/alerts/?token={self.token}'
+    #     async with websockets.connect(uri) as websocket:
+    #         res = await websocket.recv()
+    #         res = json.loads(res)
+            # P_res = sync_to_async(self.client.post)('/calendars/', {
+            #     "title": "first",
+            #     "description": "",
+            #     "start": self.after_1_d,
+            #     "end": self.after_3_d,
+            #     "from_time": self.after_1_h,
+            #     "to_time": self.after_5_h,
+            #     "created_by": 1,
+            #     "date_type": 1,
+            #     "users": [1],
+            #     "recurrence": [
+            #         "1 sunday",
+            #     ],
+            # })
+            # self.assertEqual(P_res.status_code, status.HTTP_201_CREATED)
+
+
+    async def test_queries(self):
+        uri = f'ws://localhost:8000/alerts/?token={self.token}&events__title=ddd'
+        async with websockets.connect(uri) as websocket:
+            res = await websocket.recv()
+            res = json.loads(res)
+            Debugging(res, color='green')
 
     def test_dates_notifcations(self):
         DateType.objects.create(name='meeting')

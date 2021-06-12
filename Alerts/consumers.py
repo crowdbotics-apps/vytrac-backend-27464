@@ -1,54 +1,58 @@
 import json
+from urllib.parse import parse_qs
 
 from channels.generic.websocket import WebsocketConsumer
 from django.contrib.auth.models import AnonymousUser
-from users.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from drf_queryfields import QueryFieldsMixin
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import UntypedToken
 
 from Functions.debuging import Debugging
 from Functions.queryset_filtering import queryset_filtering
+from calendars.models import Event
 from patients.models import Patient
 from users import models
 
 
-class Myser(serializers.ModelSerializer):
+class Myser(QueryFieldsMixin,serializers.ModelSerializer):
     class Meta:
         model = models.User
         fields = ['username', 'id', 'events']
         depth = 1
 
 
-from urllib.parse import parse_qs
+class Eventser(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = '__all__'
 
 
 def return_notifcations(scope):
+    # context = {'request': scope, 'method': 'view'}
     ids = []
     user = scope.get('user')
     queries = scope['query_string']
     queries = parse_qs(queries.decode("utf8"))
-    patients = queryset_filtering(Patient, queries)
-    users = queryset_filtering(Patient, queries)
-    # changeTracker = queryset_filtering(Column, queries)
+    for i in queries.keys():
+        queries[i] = queries[i][0]
 
-    # ids.append(items.values('id'))
-    # users = models.User.objects.filter(id__in=[1])
-    users = models.User.objects.all()
 
-    # if user.is_staff or user.is_superuser:
-    #     users = models.User.objects.all()
-    data = Myser(users,many=True, context=scope).data
-    # for date in data['dates']:
-    #     date['is_seen'] = user.id in date['seen_by']
-    return json.dumps(data)
+    users = queryset_filtering(models.User, queries)
+    if user:
+        if not user.is_staff or not user.is_superuser:
+            users = users.filter(id=user.id)
+    serializer = Myser(users, many=True)
+    Debugging(users, color='green')
+
+    return json.dumps(serializer.data)
 
 
 def get_user(querys):
     token = parse_qs(querys.decode("utf8"))['token'][0]
     token_data = UntypedToken(token)
     user_id = token_data["user_id"]
-    Debugging(querys, color='green')
-    Debugging(User.objects.all(), color='blue')
     try:
         return User.objects.get(id=user_id)
     except User.DoesNotExist:
@@ -57,15 +61,22 @@ def get_user(querys):
 
 class Alerts(WebsocketConsumer):
     def connect(self):
-
         self.accept()
         user = self.scope.get('user')
-        Debugging(user, color='green')
         if not user:
             self.send('You are not authenticated')
             super().disconnect(self)
-        notifcation = return_notifcations(self.scope)
-        self.send(notifcation)
+
+        @receiver(post_save, sender=Patient)
+        @receiver(post_save, sender=Event)
+        def __init__(sender,instance,created, **kwargs):
+            if sender.__name__ == 'Event':
+                pass
+                # self.send(Eventser(instance,many=False).data)
+            # Debugging(User.objecs.fields(events__title='ddd'), color='green')
+            self.send(return_notifcations(self.scope))
+
+        self.send(return_notifcations(self.scope))
 
     def receive(self, text_data):
         errors = []
@@ -76,7 +87,7 @@ class Alerts(WebsocketConsumer):
         # notifcation = return_notifcations(self.scope)
         # self.send(notifcation)
 
-        notifcation = return_notifcations(self.scope)
+        # notifcation = return_notifcations(self.scope)
 
     def disconnect(self, close_code):
         print(close_code)

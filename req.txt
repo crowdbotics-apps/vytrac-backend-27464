@@ -1,3 +1,0 @@
-pipenv uninstall Django asgiref django-cors-headers django-safedelete channels daphne
-pipenv lock --clear
-pipenv install Django asgiref django-cors-headers django-safedelete channels daphne

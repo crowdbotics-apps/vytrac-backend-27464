@@ -19,6 +19,14 @@ def convert_to_fieldname(action, field):
     return fieldname.group(5)
 
 
+def get_user_permissions(user):
+    user_permissions = convert_to_list(user.user_permissions.all())
+    for group in user.groups.all():
+        groups_permissions = convert_to_list(group.permissions.all())
+        user_permissions += list(groups_permissions)
+    return user_permissions
+
+
 def permision_chack(action, modelname, user):
     is_permited = False
     message = ''
@@ -26,10 +34,7 @@ def permision_chack(action, modelname, user):
     required_permission = action + '_' + modelname
     user_permissions = []
     try:
-        user_permissions = convert_to_list(user.user_permissions.all())
-        for group in user.groups.all():
-            groups_permissions = convert_to_list(group.permissions.all())
-            user_permissions += list(groups_permissions)
+        user_permissions = get_user_permissions(user)
 
         if (user.is_staff or user.is_superuser):
             is_permited = True
@@ -62,10 +67,8 @@ def permision_chack(action, modelname, user):
         return {'is_premited': False, 'message': 'you are not authenticated'}
 
 
-
-
 # get_permission_id
-def get_permission_id(name,Model):
+def get_permission_id(name, Model):
     if "Can" not in name:
         print(Fore.BLUE + Back.RED + '============ name error ============')
     id = None
@@ -80,4 +83,3 @@ def get_permission_id(name,Model):
         except:
             pass
     return id
-

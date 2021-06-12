@@ -12,7 +12,7 @@ from Functions.tests_credentials import tests_setup_function
 from calendars.models import DateType
 from users.models import Availablity, User
 
-login_data = {'username': 'newusername',
+login_data = {'username': 'Clover',
               'password': 'password'}
 
 

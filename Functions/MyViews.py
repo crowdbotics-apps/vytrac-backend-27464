@@ -31,7 +31,6 @@ class ItemsView(generics.ListAPIView):
 
     #
     def post(self, request):
-        Debugging(request, color='green')
         serializer = self.serializer_class(
             data=request.data, context={'method': 'add', 'request': request})
         if serializer.is_valid():

@@ -125,9 +125,26 @@ The end points that are not documeted in swagger.
         -  $.delete('/trash/?ids=<number>,<number>,') this will delete multi items
         
 
+
+### for local use
+```
+$ python3.9 -m venv env
+$ source env/bin/activate
+$ pip install -r requirements.txt
+$ ./manage.py makemigrations
+$ ./manage.py migrate
+$ ./manage.py runserver
+# Note: postgres work only in the dockerized mode,
+```
+
+
 ### potential conflicts.
 ```
-$ pipenv uninstall asgiref pyjwt djangochannelsrestframework asgi-redis channels-redis django djangorestframework djangorestframework-simplejwt
-$ pipenv install asgiref pyjwt
-$ pipenv install  djangochannelsrestframework asgi-redis channels-redis django djangorestframework djangorestframework-simplejwt
+# pyjwt
+$ pipenv install djangorestframework  pipreqs  drf-yasg  aiohttp  aioredis  altgraph  ambition-django-timezone-field  aniso8601  anyjson  appdirs  astroid  async-timeout  attrs  auto-py-to-exe  autobahn  autopep8  boto3  botocore  bottle  bottle-websocket  certifi  cffi  channels-redis  chardet  click  colorama  constantly  coreapi  coreschema  coverage  cryptography  defusedxml  dill  distlib  dj-database-url  django-address  django-countries  django-crispy-forms  django-datetime-widget2  django-graphql-auth  django-graphql-jwt  django-heroku  django-language-field  django-model-utils  django-multiselectfield  django-pagination  django-rest-auth  django-rest-swagger  django-storages  django-timezone-field  django-widget-tweaks  djangochannelsrestframework  djangorestframework-jwt  djangorestframework-queryfields  djangorestframework-simplejwt  drf-renderer-xlsx  et-xmlfile  factory-boy  filelock  fleming  future  gevent  gevent-websocket  googletrans  graphene  graphene-django  graphql-core  graphql-relay  greenlet  gunicorn  h11  h2  hiredis  hpack  hstspreload  httpcore  httpx  hyperframe  hyperlink  idna  importlib-metadata  incremental  inflection  iniconfig  install  isort  itsdangerous  itypes  jmespath  lazy-object-proxy  macholib  mccabe  msgpack  msgpack-python  multidict  numpy  oauthlib  openapi-codec  openpyxl  pandas  path  pathlib  pep8  pipenv  pluggy  promise  psycopg2  pyasn1  pyasn1-modules  pycodestyle  pycparser  pyinstaller  pyinstaller-hooks-contrib  pyparsing  python-dateutil  python3-openid  pytz  redis  requests  requests-oauthlib  rfc3986  "ruamel.yaml"  "ruamel.yaml.clib"  s3transfer  selenium  service-identity  simplejson  singledispatch  six  sniffio  sqlparse  termcolor  text-unidecode  toml  txaio  typing-extensions  uritemplate  urllib3  virtualenv  virtualenv-clone  websockets  whichcraft  whitenoise  wrapt  yarl  zipp  "zope.event"  "zope.interface"  asgi_redis  Automat  Django-Abstract-Relations  Eel  Faker  Jinja2  Markdown  MarkupSafe  Pillow  PyJWT  pyOpenSSL  Rx  Twisted  Werkzeug
+$ pipenv uninstall asgiref Django asgiref django-cors-headers django-safedelete channels daphne
+$ pipenv lock --clear
+$ pipenv lock --pre
+$ pipenv install asgiref Django asgiref django-cors-headers django-safedelete channels daphne
+
 ```

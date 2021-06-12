@@ -107,7 +107,6 @@ class CalinderSeriazliser(DynamicSerializer):
         availabilities = []
 
         for user in users:
-            Debugging(list(user.date_avalable.all()), color='yellow')
             aval = AvalibitlySer(user.date_avalable.all(), many=True)
             availabilities.append(aval.data)
 
