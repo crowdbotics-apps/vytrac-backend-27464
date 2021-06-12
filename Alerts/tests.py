@@ -67,7 +67,6 @@ class AlertsTests(APITestCase):
         DateType.objects.create(name='appointment')
         tests_setup_function(self)
 
-
     async def test_not_auth(self):
         uri = f'ws://localhost:8000/alerts/?token={self.token}&x=xxx'
         async with websockets.connect(uri) as websocket:

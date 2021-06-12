@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'channels',
     'rest_framework',
     'corsheaders',
-    'django_filters',
     'drf_yasg',
     'safedelete',
     'rest_framework_simplejwt.token_blacklist',
@@ -185,7 +184,6 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.OrderingFilter',
         'rest_framework.filters.SearchFilter',
     ),

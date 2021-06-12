@@ -1,18 +1,13 @@
 from django.core.exceptions import ValidationError
-from django.db.models import Q
-
-from Functions.debuging import Debugging
-from Functions.queryset_filtering import queryset_filtering
-from users.models import User
 from django.utils.translation import gettext_lazy as _
-from django_filters.rest_framework import DjangoFilterBackend
 from multiselectfield import MultiSelectField
-from rest_framework import filters
 from rest_framework import generics, mixins
 from rest_framework import status
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+
+from Functions.debuging import Debugging
+from Functions.queryset_filtering import queryset_filtering
 
 
 def convert_to_list(django_boject):

@@ -6,6 +6,7 @@ from django.core.validators import RegexValidator
 # Create your models here.
 from django.db import models
 from django.utils import timezone
+from safedelete import SOFT_DELETE
 from safedelete.models import (
     SafeDeleteModel
 )
@@ -66,6 +67,7 @@ class Sex(models.Model):
 
 
 class User(AbstractUser, PermissionsMixin):
+    _safedelete_policy = SOFT_DELETE
     photo = models.ImageField(blank=True, null=True)
 
     username = models.CharField(
