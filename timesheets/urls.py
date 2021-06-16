@@ -30,7 +30,7 @@ class StatisticSer(DynamicSerializer):
 
     class Meta:
         model = MyModel
-        fields = ['field_value', 'name', 'action', 'seen_by', 'date_created', 'column']
+        fields = ['object_id','field_value', 'name', 'action', 'seen_by', 'date_created', 'column']
 
 
 class Postser(DynamicSerializer):
@@ -44,9 +44,8 @@ class StatsticsView(ItemsView):
         data = super().get(request, *args, **kwargs).data
         getter = request.GET
 
-        if 'cal' in getter and 'fields' in getter:
-            return Response({'error': 'You can not element fields because thy are needed for th calculations'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        if ('cal' in getter) and ('fields' in getter):
+            return Response({'error': 'You can not element fields because thy are needed for th calculations'},status=status.HTTP_400_BAD_REQUEST)
 
         data = statistics(data, getter)
         return Response(data, status=status.HTTP_200_OK)

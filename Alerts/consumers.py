@@ -38,14 +38,14 @@ def return_notifcations(scope):
     for i in queries.keys():
         queries[i] = queries[i][0]
 
+    Debugging(queries, color='blue')
+    Debugging(models.User.objects.all().count(), color='green')
 
     users = queryset_filtering(models.User, queries)
     if user:
         if not user.is_staff or not user.is_superuser:
             users = users.filter(id=user.id)
     serializer = Myser(users, many=True)
-    Debugging(users, color='green')
-
     return json.dumps(serializer.data)
 
 
@@ -63,6 +63,7 @@ class Alerts(WebsocketConsumer):
     def connect(self):
         self.accept()
         user = self.scope.get('user')
+
         if not user:
             self.send('You are not authenticated')
             super().disconnect(self)

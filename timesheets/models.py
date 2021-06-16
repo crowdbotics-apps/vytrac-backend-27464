@@ -18,6 +18,7 @@ class Column(SafeDeleteModel):
 
 
 class Value(SafeDeleteModel):
+    object_id = models.CharField(max_length=20)
     name = models.CharField(max_length=50, blank=True)
     column = models.ForeignKey(Column, related_name='column', on_delete=models.CASCADE)
     field_value = models.CharField(max_length=500)
@@ -47,7 +48,7 @@ class Value(SafeDeleteModel):
 #             old_field_value = str(getattr(old_object, field_target))
 #             # TODO symptoms
 #             # print('======================')
-#             # print(instance.symptoms.all())
+#             # print(instance.symptoms.all =())
 #             # print(old_object.symptoms.all())
 #             # print('======================')
 #             if (old_field_value != field_value):

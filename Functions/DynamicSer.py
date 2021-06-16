@@ -16,21 +16,15 @@ class DynamicSerializer(QueryFieldsMixin, serializers.ModelSerializer):
         view_fields = None
         change_fields = None
         try:
-
             request = kwargs['context']['request']
             user = request.user
-            if request.method == "GET":
-                method = 'view'
-            elif request.method == "PUT":
-                method = 'change'
-            elif request.method == "POST":
-                method = 'add'
-            elif request.method == "DELETE":
-                method = 'delete'
+            optionss = {'GET':'view', 'PUT':'change','POST':'add','DELETE':'delete'}
+            method = optionss[request.method]
             pk = kwargs['context']['pk']
-            is_owner = modelname == 'user' and pk == user.id
+            is_owner = request.is_owner
         except:
             pass
+
 
         if not is_owner and len(method) > 0:
             permission = permision_chack(method, modelname, user)

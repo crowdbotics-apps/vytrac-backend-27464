@@ -106,16 +106,23 @@ class AuthTestings(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)  # TODO
 
     def test_can_not_change(self):
-        self.user.user_permissions.add(get_permission_id('Can view user', User))
+        #0. can't update
+        res = self.client.put('/users/2/', {'username': 'updated', 'password': 'password', 'email': 'Alex@g.com'})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+        #1. add permission
+        self.user.user_permissions.add(get_permission_id('Can change user', User))
         self.user.save()
 
-        userI = User.objects.get(id=1)
-        resp = self.client.put('/users/1/', {'username': 'updated', 'password': 'password', 'email': 'Alex@g.com'})
-        userF = User.objects.get(id=1)
-
+        #3. change
+        userI = User.objects.get(id=2)
+        res = self.client.put('/users/2/', {'username': 'updated', 'password': 'password', 'email': 'Alex@g.com'})
+        userF = User.objects.get(id=2)
+        Debugging(res, color='green')
+        # 4. test
         self.assertNotEqual(userI.username, userF.username)
         self.assertEqual(userI.email, userF.email)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     #TODO def test_can_change_email(self):
     #     #TODO self.user.user_permissions.add(get_permission_id('Can change email', User))
@@ -147,6 +154,17 @@ class AuthTestings(APITestCase):
         resp = self.client.put('/users/1/', {'username': 'updated', 'password': 'password'})
         assert resp.data['username'] == 'updated'
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_is_owner(self):
+        self.user.user_permissions.clear()
+        self.user.is_staff = False
+        self.user.is_superuser = False
+        self.user.save()
+        res = self.client.get('/users/2/')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+        res = self.client.get('/users/1/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_cant_update_to_ununique(self):
         res = self.client.put('/users/1/', {'username': 'Alex', 'password': 'password'})
