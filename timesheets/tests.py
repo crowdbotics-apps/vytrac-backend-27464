@@ -8,21 +8,54 @@ from Functions.debuging import Debugging
 from Functions.tests_credentials import tests_setup_function
 from timesheets.models import Column, Value
 
+import time
+from unittest import mock
 
-def prime(num):
-    for x in range(2, num):
-        if num % x == 0:
-            return False
-        return True
+
+def is_odd(num):
+    return (num % 2) != 0
 
 
 class TestTimeSheets(APITestCase):
+
     def setUp(self):
         tests_setup_function(self)
+        date_format = '%Y-%m-%d'
+        time_format = '%H:%M:%S'
+        d = datetime.datetime
+
+        # faketime.change_time(datetime(2050, 6, 7, 10, 9, 22, 713689))
+        # datecmd.run()
+        # Debugging(d.now(), color='yellow')
+
+        self.now = d.now().strftime(time_format)
+        after_1_h = d.now() + datetime.timedelta(hours=1)
+        after_5_h = d.now() + datetime.timedelta(hours=5)
+        self.after_1_h = after_1_h.strftime(time_format)
+        self.after_5_h = after_5_h.strftime(time_format)
+
+        after_2_h = d.now() + datetime.timedelta(hours=2)
+        after_3_h = d.now() + datetime.timedelta(hours=3)
+        self.after_2_h = after_2_h.strftime(time_format)
+        self.after_3_h = after_3_h.strftime(time_format)
+
+        after_10_h = d.now() + datetime.timedelta(hours=10)
+        after_11_h = d.now() + datetime.timedelta(hours=11)
+        self.after_10_h = after_10_h.strftime(time_format)
+        self.after_11_h = after_11_h.strftime(time_format)
+
+        after_1_d = d.now() + datetime.timedelta(days=1)
+        after_3_d = d.now() + datetime.timedelta(days=3)
+
+        self.after_1_d = after_1_d.strftime(date_format)
+        self.after_3_d = after_3_d.strftime(date_format)
 
         cal1 = Column.objects.create(name='oxygen', user=self.user)
+
         cal2 = Column.objects.create(name='prusser', user=self.user)
+
         cal3 = Column.objects.create(name='late', user=self.user)
+
 
         for i in range(4):
             Value.objects.create(column=cal1, field_value=i)
@@ -30,8 +63,13 @@ class TestTimeSheets(APITestCase):
         for i in range(4):
             Value.objects.create(column=cal2, field_value=str(i + 1))
 
-        for i in range(4):
-            Value.objects.create(column=cal3, field_value=str(prime(i)))
+
+
+        for i in range(1,4):
+            val = Value.objects.create(column=cal3, field_value=str(is_odd(i)))
+
+
+
 
     def test_statistics_url(self):
         res = self.client.get('/statistics/')
@@ -53,7 +91,7 @@ class TestTimeSheets(APITestCase):
                                )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-    def test_typost(self):
+    def test_typos(self):
 
         data = {
             "field_value": "22",
@@ -96,170 +134,6 @@ class TestTimeSheets(APITestCase):
         for i in res.data:
             assert i['column']['name'] == 'late'
 
-    # def test_timesheet_register_patients_data(self):
-    #     assert ChangeTrack.objects.all().count() == 3
-    #
-    #     patient_res = self.client.post('/patient/', {
-    #         "prescriptions": "",
-    #         "blood_pressure": "120/80",
-    #         "created_by": 1,
-    #         "care_taker": [1],
-    #         "booked_servces": [],
-    #         "symptoms": []}, format='json')
-    #     self.assertEqual(patient_res.status_code, status.HTTP_201_CREATED)
-    #     trackes = ChangeTrack.objects.all().count()
-    #     assert trackes > 3
-    #     #
-    #     patient_res = self.client.put(
-    #         '/patient/1/', {'blood_pressure': '130/85'}, format='json')
-    #     self.assertEqual(ChangeTrack.objects.all().count(), trackes + 1)
-    #
-    #     patient_res = self.client.put(
-    #         '/patient/1/', {'blood_pressure': '110/80'}, format='json')
-    #     assert ChangeTrack.objects.all().count() == trackes + 2
-    #
-    #     patient_res = self.client.put(
-    #         '/patient/1/', {'blood_pressure': '120/80'}, format='json')
-    #     assert ChangeTrack.objects.all().count() == trackes + 3
-    #
-    #     res = self.client.get('/statistics/?resample=day&target=id')
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #
-    #     patient_res = self.client.post('/patient/', {
-    #         "prescriptions": "",
-    #         "blood_pressure": "999999/0000",
-    #         "created_by": 1,
-    #         "care_taker": [1],
-    #         "booked_servces": [],
-    #         "symptoms": []}, format='json')
-    #     assert patient_res.data['id'] == 2
-    #     self.assertGreaterEqual(
-    #         ChangeTrack.objects.all().count(), trackes + 20)
-    #     self.assertEqual(patient_res.status_code, status.HTTP_201_CREATED)
-    #
-    #     res = self.client.get(
-    #         '/statistics/'
-    #         '?object_id=1'
-    #         '&fields=object_id'
-    #
-    #     )
-    #     for i in res.data:
-    #         assert i['object_id'] == 1
-    #     assert "field_target" not in str(res.data)
-    #     assert "object_id" in str(res.data)
-    #
-    #     res = self.client.get(
-    #         '/statistics/'
-    #         '?object_id=2'
-    #         '&fields=object_id'
-    #     )
-    #     for i in res.data:
-    #         assert i['object_id'] == 2
-    #
-    # def test_statistics(self):
-    #     res = self.client.get('/statistics/?'
-    #                           '&cal=max'
-    #                           "&resample=2H"
-    #                           '&field_target=blood_pressure'
-    #                           )
-    #
-    #     assert len(res.data) == 2
-    #     assert '220/80' in str(res.data)
-    #     assert '210/80' not in str(res.data)
-    #
-    #     res = self.client.get('/statistics/?'
-    #                           # '?field_value__gt="210/80'
-    #                           '&cal=min'
-    #                           # "&fields=field_value,field_target,date_created,object_id"
-    #                           "&resample=2H"
-    #                           '&field_target=blood_pressure'
-    #                           )
-    #     # Debugging(res.data, color='green')
-    #     # TODO
-    #     # assert len(res.data) == 2
-    #     # assert '220/80' not in str(res.data)
-    #     # assert '210/80' in str(res.data)
-    #
-    #     res = self.client.get('/statistics/?'
-    #                           # '?field_value__gt="210/80'
-    #                           '&cal=min'
-    #                           # "&fields=field_value,field_target,date_created,object_id"
-    #                           "&resample=1D"
-    #                           '&field_target=blood_pressure'
-    #                           )
-    #     assert len(res.data) == 1
-    #     assert '210/80' in str(res.data)
-    #     assert '230/80' not in str(res.data)
-    #
-    # def test_lookups(self):
-    #     res = self.client.get(
-    #         '/statistics/?field_value__gt=210/80&fields=field_value')
-    #
-    #     assert '210/80' not in str(res.data)
-    #     assert '220/80' in str(res.data)
-    #     #
-    #     res = self.client.get(
-    #         '/statistics/?field_value__lt=220/80&fields=field_value')
-    #     assert '210/80' in str(res.data)
-    #     assert '220/80' not in str(res.data)
-    #
-    # def test_auth(self):
-    #     res = self.client.get(
-    #         '/statistics/')
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #
-    #     self.user.is_staff = False
-    #     self.user.is_superuser = False
-    #     self.user.save()
-    #     res = self.client.get(
-    #         '/statistics/')
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    #
-    # def test_cant_user_cal_and_fields(self):
-    #     res = self.client.get(
-    #         '/statistics/?fields=field_value&cal=max')
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    #
-    #     res = self.client.get(
-    #         '/statistics/?fields=field_value')
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    # def test_statistics_with_filters(self):
-    #     res = self.client.get('/statistics/?'
-    #                           '?field_value__gt="210/80'
-    #                           '&cal=max'
-    #                           "&fields=field_value,field_target,date_created,object_id"
-    #                           "&resample=1D"
-    #                           '&field_target=blood_pressure'
-    #                           )
-    #     assert len(res.data) == 1
-    #     assert '230/85' in str(res.data)
-    #     assert '210/80' not in str(res.data)
-
-    # def test_durations(self):
-    #
-    #     # TODO test_durations
-    #     def prime(num):
-    #         for x in range(2, num):
-    #             if num % x == 0:
-    #                 return False
-    #         return True
-    #
-    #     for i in range(1,10):
-    #         new = ChangeTrack.objects.create(field_target='is_seen', field_value=str(prime(i)), object_id='1')
-    #         new.date_created = '2021-06-0'+f'{i}'+'T13:48:10.082531Z'
-    #         new.save()
-    #
-    #     res = self.client.get('/statistics/?'
-    # '&cal=max'
-    # "&fields=field_value,field_target,date_created,object_id"
-    # "&resample=1D"
-    # '&field_target=blood_pressure'
-    # )
-    # Debugging(res.data, color='green')
-
-    # assert len(res.data) == 1
-    # assert '230/85' in str(res.data)
-    # assert '210/80' not in str(res.data)
+    def test_statstics_basic(self):
+        res = self.client.get('/statistics/?cal=max&resample=1H&column__name=late')
+        Debugging(res.data, color='green')

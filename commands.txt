@@ -1,3 +1,4 @@
+git config --global user.email "ali.alkaraawi@crowdbotics.com"
 python3.9 -m venv env
 python3.9 -m pipevn shell
 source env/bin/activate

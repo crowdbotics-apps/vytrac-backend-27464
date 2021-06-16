@@ -28,6 +28,10 @@ class UserView(ItemView):
     queryset = User.objects.all()
     serializer_class = serializers.UsersSerializer
 
+    def get(self, request, pk):
+        setattr(request,'is_owner',pk == request.user.id)
+        return super().get(request, pk,)
+
     def put(self, *args,**kwargs):
         user = self.request.user
         permissions = get_user_permissions(user)

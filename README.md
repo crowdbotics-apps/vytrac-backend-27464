@@ -1,13 +1,10 @@
-### Features
+# get started
+1. with pipenv 
+$ `python3.9 -m  pipenv install -r requirements.txt --skip-lock`
+1. or with venv
+$ `python3.9 -m pip install -r requirements.txt`
 
-1. **Local Authentication** using email and password with [allauth](https://pypi.org/project/django-allauth/)
-2. **Rest API** using [django rest framework](http://www.django-rest-framework.org/)
-3. **Forgot Password**
-4. Bootstrap4
-5. Toast Notification
-6. *Inline content editor in homepage*
-7. Trash cycle
-8. 
+
 
 # api description
  - queries
